@@ -2,6 +2,7 @@ package hue_cmd
 
 import (
 	"fmt"
+
 	"github.com/amimof/huego"
 )
 
@@ -19,9 +20,8 @@ func List(ip string, user string) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Found %d lights:\n", len(l))
 	for n, light := range l {
-		fmt.Printf("#%d: %v\n", n, light)
+		fmt.Printf("#%d: %v\n%v\n\n", n, light, light.State)
 	}
 }
 

@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// colorCmd represents the color command
 var colorCmd = &cobra.Command{
 	Use:   "color",
 	Short: "language agnostic eye pleasures",

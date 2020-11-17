@@ -8,7 +8,6 @@ import (
 	"github.com/schnoddelbotz/huego-fe/hue_cmd"
 )
 
-// loginCmd represents the login command
 var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "BFG-9000 apparello",

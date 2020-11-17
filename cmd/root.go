@@ -2,23 +2,22 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
 	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var cfgFile string
 
 const (
-	flagHueUser       = "hue-user"
-	flagHueIP         = "hue-ip"
-	flagHueLight      = "hue-light"
+	flagHueUser  = "hue-user"
+	flagHueIP    = "hue-ip"
+	flagHueLight = "hue-light"
 )
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "huego-fe",
 	Short: "huego-fe can control your philips hue stuff",
@@ -36,11 +35,10 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.huego-fe.yaml)")
-	rootCmd.PersistentFlags().StringP(flagHueUser, "u", "", "Hue bridge user, see: huego-fe login -h")
-	rootCmd.PersistentFlags().StringP(flagHueIP, "i", "", "Hue bridge IP, see: huego-fe login -h")
-	rootCmd.PersistentFlags().IntP(flagHueLight, "l", 1, "Hue light No.#, see: huego-fe list")
-	// Cobra also supports local flags, which will only run when this action is called directly.
-	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().StringP(flagHueUser, "u", "", "Hue bridge user [$HUE_USER], see: huego-fe login -h")
+	rootCmd.PersistentFlags().StringP(flagHueIP, "i", "", "Hue bridge IP [$HUE_IP] , see: huego-fe login -h")
+	rootCmd.PersistentFlags().IntP(flagHueLight, "l", 1, "Hue light No.# [$HUE_LIGHT], see: huego-fe list")
+	// make flags like --hue-ip available to app if HUE_IP in env:
 	replacer := strings.NewReplacer("-", "_")
 	viper.SetEnvKeyReplacer(replacer)
 	_ = viper.BindPFlag(flagHueUser, rootCmd.PersistentFlags().Lookup(flagHueUser))
@@ -65,9 +63,7 @@ func initConfig() {
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".huego-fe")
 	}
-
 	viper.AutomaticEnv() // read in environment variables that match
-
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
