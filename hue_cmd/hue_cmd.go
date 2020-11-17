@@ -20,8 +20,15 @@ func List(ip string, user string) {
 	if err != nil {
 		panic(err)
 	}
+	listFormat := "%12s: %v\n"
 	for n, light := range l {
-		fmt.Printf("#%d: %v\n%v\n\n", n, light, light.State)
+		if n > 0 {
+			println()
+		}
+		fmt.Printf("%d: %s [%s]\n", n, light.Name, light.ModelID)
+		fmt.Printf(listFormat, "PoweredOn", light.State.On)
+		fmt.Printf(listFormat, "Reachable", light.State.Reachable)
+		fmt.Printf(listFormat, "ColorMode", light.State.ColorMode)
 	}
 }
 
