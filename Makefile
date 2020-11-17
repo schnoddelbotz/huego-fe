@@ -15,7 +15,7 @@ web/assets.go: $(ASSETS)
 	go generate
 
 clean:
-	rm -f $(BINARY)
+	rm -f $(BINARY) web/assets.go
 
 fmt:
 	go fmt ./...

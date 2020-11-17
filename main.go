@@ -1,4 +1,4 @@
-//go:generate esc -prefix assets/ -pkg web -o web/assets.go -private assets
+//go:generate esc -pkg web -o web/assets.go -private assets
 /*
 Copyright © 2020 Jan Hacker <jan@hacker.ch>
 

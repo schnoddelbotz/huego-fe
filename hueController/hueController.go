@@ -6,14 +6,14 @@ import (
 	"github.com/amimof/huego"
 )
 
-type controller struct {
+type Controller struct {
 	bridge     *huego.Bridge
 	bridgeIP   string
 	bridgeUser string
 }
 
-func New(ip string, user string) *controller {
-	return &controller{
+func New(ip string, user string) *Controller {
+	return &Controller{
 		bridge:     huego.New(ip, user),
 		bridgeIP:   ip,
 		bridgeUser: user,
@@ -32,11 +32,19 @@ func Login() (string, string, error) {
 	return bridge.Host, user, nil
 }
 
-func (ctrl *controller) IsLoggedIn() bool {
+func (ctrl *Controller) IsLoggedIn() bool {
 	return ctrl.bridgeIP != "" && ctrl.bridgeUser != ""
 }
 
-func (ctrl *controller) List() {
+func (ctrl *Controller) IP() string {
+	return ctrl.bridgeIP
+}
+
+func (ctrl *Controller) Lights() ([]huego.Light, error) {
+	return ctrl.bridge.GetLights()
+}
+
+func (ctrl *Controller) List() {
 	l, err := ctrl.bridge.GetLights()
 	if err != nil {
 		panic(err)
@@ -46,14 +54,14 @@ func (ctrl *controller) List() {
 		if n > 0 {
 			println()
 		}
-		fmt.Printf("%d: %s [%s]\n", n, light.Name, light.ModelID)
+		fmt.Printf("%d: %s [%s]\n", light.ID, light.Name, light.ModelID)
 		fmt.Printf(listFormat, "PoweredOn", light.State.On)
 		fmt.Printf(listFormat, "Reachable", light.State.Reachable)
 		fmt.Printf(listFormat, "ColorMode", light.State.ColorMode)
 	}
 }
 
-func (ctrl *controller) PowerOff(lightId int) error {
+func (ctrl *Controller) PowerOff(lightId int) error {
 	light, err := ctrl.bridge.GetLight(lightId)
 	if err != nil {
 		return err
@@ -61,7 +69,7 @@ func (ctrl *controller) PowerOff(lightId int) error {
 	return light.Off()
 }
 
-func (ctrl *controller) PowerOn(lightId int) error {
+func (ctrl *Controller) PowerOn(lightId int) error {
 	light, err := ctrl.bridge.GetLight(lightId)
 	if err != nil {
 		return err
@@ -69,7 +77,7 @@ func (ctrl *controller) PowerOn(lightId int) error {
 	return light.On()
 }
 
-func (ctrl *controller) SetBrightness(lightId int, brightness uint8) error {
+func (ctrl *Controller) SetBrightness(lightId int, brightness uint8) error {
 	light, err := ctrl.bridge.GetLight(lightId)
 	if err != nil {
 		return err

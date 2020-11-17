@@ -1,11 +1,23 @@
 <html>
 <head>
-    <title>huego-fe on {.srv.IP}</title>
+    <title>huego-fe</title>
+    <script src="assets/app.js" type="text/javascript"></script>
 </head>
 <body>
 
-{.foreach Lamp...}
-- on/off/brightnets + color r/g/b
+    <h1>Lamps on bridge {{.HueIP}}</h1>
+
+    {{ range $index, $light := .Lights }}
+    <h2>{{$light.ID}}  {{$light.Name}}</h2>
+    <ul>
+        <li>On: {{$light.State.On}}</li>
+        <li>Reachable: {{$light.State.Reachable}}</li>
+        <li>debug_dump: {{$light}}</li>
+    </ul>
+    Controls [todo]:
+    <button onclick="powerOn({{$light.ID}})">On</button>
+    <button onclick="powerOff({{$light.ID}})">Off</button> ...
+    {{ end }}
 
 </body>
 </html>
