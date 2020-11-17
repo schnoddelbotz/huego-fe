@@ -20,12 +20,16 @@ func New(ip string, user string) *controller {
 	}
 }
 
-func Login() {
-	bridge, _ := huego.Discover()
-	user, _ := bridge.CreateUser("huego-fe") // Link button needs to be pressed BEFORE -- fixme, notify/wait user
-	bridge = bridge.Login(user)
-	fmt.Printf("bridge: %v", bridge)
-	fmt.Printf("user  : %v", user)
+func Login() (string, string, error) {
+	bridge, err := huego.Discover()
+	if err != nil {
+		return "", "", err
+	}
+	user, err := bridge.CreateUser("huego-fe") // Link button needs to be pressed BEFORE -- fixme, notify/wait user
+	if err != nil {
+		return "", "", err
+	}
+	return bridge.Host, user, nil
 }
 
 func SaveLoginToConfigFile() error {
