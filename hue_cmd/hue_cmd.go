@@ -39,3 +39,9 @@ func On(ip string, user string, lightId int) error {
 	light, _ := bridge.GetLight(lightId)
 	return light.On()
 }
+
+func Brightness(ip string, user string, lightId int, brightness uint8) error {
+	bridge := huego.New(ip, user)
+	light, _ := bridge.GetLight(lightId)
+	return light.Bri(brightness)
+}

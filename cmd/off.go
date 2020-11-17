@@ -11,15 +11,14 @@ import (
 // offCmd represents the off command
 var offCmd = &cobra.Command{
 	Use:   "off",
+	Aliases: []string{"0"},
 	Short: "fusion reactor control plane",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Printf("Powering off: Light %d ...\n", viper.GetInt(flagHueLightNumber2))
-		return hue_cmd.Off(viper.GetString(flagHueIP), viper.GetString(flagHueUser), viper.GetInt(flagHueLightNumber2))
+		fmt.Printf("Powering off: Light %d ...\n", viper.GetInt(flagHueLight))
+		return hue_cmd.Off(viper.GetString(flagHueIP), viper.GetString(flagHueUser), viper.GetInt(flagHueLight))
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(offCmd)
-	offCmd.Flags().Int8P(flagHueLightNumber2, "l", 0, "Hue light number # 0 ... n")
-	_ = viper.BindPFlag(flagHueLightNumber2, offCmd.Flags().Lookup(flagHueLightNumber2))
 }

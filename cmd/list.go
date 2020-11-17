@@ -10,6 +10,7 @@ import (
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
+	Aliases: []string{"l"},
 	Short: "A brief description of your command",
 	Run: func(cmd *cobra.Command, args []string) {
 		// todo: how-to set both args required down here...? :/

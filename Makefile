@@ -11,3 +11,6 @@ $(BINARY): main.go */*.go go.*
 
 clean:
 	rm -f $(BINARY)
+
+fmt:
+	go fmt ./...

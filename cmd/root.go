@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
+	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
@@ -12,10 +13,9 @@ import (
 var cfgFile string
 
 const (
-	flagHueUser         = "hue-user"
-	flagHueIP           = "hue-ip"
-	flagHueLightNumber1 = "hue-light-on"
-	flagHueLightNumber2 = "hue-light-off"
+	flagHueUser       = "hue-user"
+	flagHueIP         = "hue-ip"
+	flagHueLight      = "hue-light"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -38,10 +38,14 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.huego-fe.yaml)")
 	rootCmd.PersistentFlags().StringP(flagHueUser, "u", "", "Hue bridge user, see: huego-fe login -h")
 	rootCmd.PersistentFlags().StringP(flagHueIP, "i", "", "Hue bridge IP, see: huego-fe login -h")
+	rootCmd.PersistentFlags().IntP(flagHueLight, "l", 1, "Hue light No.#, see: huego-fe list")
 	// Cobra also supports local flags, which will only run when this action is called directly.
 	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	replacer := strings.NewReplacer("-", "_")
+	viper.SetEnvKeyReplacer(replacer)
 	_ = viper.BindPFlag(flagHueUser, rootCmd.PersistentFlags().Lookup(flagHueUser))
 	_ = viper.BindPFlag(flagHueIP, rootCmd.PersistentFlags().Lookup(flagHueIP))
+	_ = viper.BindPFlag(flagHueLight, rootCmd.PersistentFlags().Lookup(flagHueLight))
 }
 
 // initConfig reads in config file and ENV variables if set.
