@@ -25,20 +25,15 @@ func Login() (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	user, err := bridge.CreateUser("huego-fe") // Link button needs to be pressed BEFORE -- fixme, notify/wait user
+	user, err := bridge.CreateUser("huego-fe")
 	if err != nil {
 		return "", "", err
 	}
 	return bridge.Host, user, nil
 }
 
-func SaveLoginToConfigFile() error {
-	return nil
-}
-
 func (ctrl *controller) List() {
-	bridge := huego.New(ctrl.bridgeIP, ctrl.bridgeUser)
-	l, err := bridge.GetLights()
+	l, err := ctrl.bridge.GetLights()
 	if err != nil {
 		panic(err)
 	}
@@ -63,12 +58,18 @@ func (ctrl *controller) PowerOff(lightId int) error {
 }
 
 func (ctrl *controller) PowerOn(lightId int) error {
-	light, _ := ctrl.bridge.GetLight(lightId)
+	light, err := ctrl.bridge.GetLight(lightId)
+	if err != nil {
+		return err
+	}
 	return light.On()
 }
 
 func (ctrl *controller) SetBrightness(lightId int, brightness uint8) error {
-	light, _ := ctrl.bridge.GetLight(lightId)
+	light, err := ctrl.bridge.GetLight(lightId)
+	if err != nil {
+		return err
+	}
 	return light.Bri(brightness)
 }
 
