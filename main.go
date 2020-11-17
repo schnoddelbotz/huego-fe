@@ -1,5 +1,6 @@
+//go:generate esc -prefix assets/ -pkg web -o web/assets.go -private assets
 /*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
+Copyright © 2020 Jan Hacker <jan@hacker.ch>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
