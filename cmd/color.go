@@ -7,10 +7,13 @@ import (
 )
 
 var colorCmd = &cobra.Command{
-	Use:   "color",
-	Short: "language agnostic eye pleasures",
-	Run: func(cmd *cobra.Command, args []string) {
+	Use:           "color",
+	Short:         "language agnostic eye pleasures",
+	SilenceErrors: true,
+	SilenceUsage:  true,
+	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("color called")
+		return nil
 	},
 }
 

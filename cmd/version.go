@@ -8,8 +8,10 @@ import (
 
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "prints a bestseller novel on-demand",
+	Use:           "version",
+	Short:         "prints a bestseller novel on-demand",
+	SilenceErrors: true,
+	SilenceUsage:  true,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf("This is huego-fe, version %s\n", Version)
 		fmt.Println("Visit https://github.com/schnoddelbotz/huego-fe for more information.")

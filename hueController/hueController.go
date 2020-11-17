@@ -32,6 +32,10 @@ func Login() (string, string, error) {
 	return bridge.Host, user, nil
 }
 
+func (ctrl *controller) IsLoggedIn() bool {
+	return ctrl.bridgeIP != "" && ctrl.bridgeUser != ""
+}
+
 func (ctrl *controller) List() {
 	l, err := ctrl.bridge.GetLights()
 	if err != nil {
