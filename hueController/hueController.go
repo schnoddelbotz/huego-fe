@@ -1,10 +1,24 @@
-package hue_cmd
+package hueController
 
 import (
 	"fmt"
 
 	"github.com/amimof/huego"
 )
+
+type controller struct {
+	bridge     *huego.Bridge
+	bridgeIP   string
+	bridgeUser string
+}
+
+func New(ip string, user string) *controller {
+	return &controller{
+		bridge:     huego.New(ip, user),
+		bridgeIP:   ip,
+		bridgeUser: user,
+	}
+}
 
 func Login() {
 	bridge, _ := huego.Discover()
@@ -14,8 +28,12 @@ func Login() {
 	fmt.Printf("user  : %v", user)
 }
 
-func List(ip string, user string) {
-	bridge := huego.New(ip, user)
+func SaveLoginToConfigFile() error {
+	return nil
+}
+
+func (ctrl *controller) List() {
+	bridge := huego.New(ctrl.bridgeIP, ctrl.bridgeUser)
 	l, err := bridge.GetLights()
 	if err != nil {
 		panic(err)
@@ -32,23 +50,22 @@ func List(ip string, user string) {
 	}
 }
 
-func Off(ip string, user string, lightId int) error {
-	bridge := huego.New(ip, user)
-	light, err := bridge.GetLight(lightId)
+func (ctrl *controller) PowerOff(lightId int) error {
+	light, err := ctrl.bridge.GetLight(lightId)
 	if err != nil {
 		return err
 	}
 	return light.Off()
 }
 
-func On(ip string, user string, lightId int) error {
-	bridge := huego.New(ip, user)
-	light, _ := bridge.GetLight(lightId)
+func (ctrl *controller) PowerOn(lightId int) error {
+	light, _ := ctrl.bridge.GetLight(lightId)
 	return light.On()
 }
 
-func Brightness(ip string, user string, lightId int, brightness uint8) error {
-	bridge := huego.New(ip, user)
-	light, _ := bridge.GetLight(lightId)
+func (ctrl *controller) SetBrightness(lightId int, brightness uint8) error {
+	light, _ := ctrl.bridge.GetLight(lightId)
 	return light.Bri(brightness)
 }
+
+// SetColor / Temp ...

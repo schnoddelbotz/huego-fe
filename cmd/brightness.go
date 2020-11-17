@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/schnoddelbotz/huego-fe/hue_cmd"
+	"github.com/schnoddelbotz/huego-fe/hueController"
 )
 
 var brightnessCmd = &cobra.Command{
@@ -22,8 +22,8 @@ var brightnessCmd = &cobra.Command{
 		}
 		fmt.Printf("Setting brightness of light #%d to %d\n",
 			viper.GetInt(flagHueLight), uint8(brightness))
-		return hue_cmd.Brightness(viper.GetString(flagHueIP), viper.GetString(flagHueUser),
-			viper.GetInt(flagHueLight), uint8(brightness))
+		controller := hueController.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
+		return controller.SetBrightness(viper.GetInt(flagHueLight), uint8(brightness))
 	},
 }
 
