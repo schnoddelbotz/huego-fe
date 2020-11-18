@@ -45,7 +45,7 @@ func Main(ctrl *hueController.Controller, appVersion string, selectLight int) {
 	}
 
 	go func() {
-		w := app.NewWindow(app.Size(unit.Dp(400), unit.Dp(250)), app.Title("huego-fe - Hue Control UI"))
+		w := app.NewWindow(app.Size(unit.Dp(400), unit.Dp(200)), app.Title("huego-fe - Hue Control UI"))
 		if err := loop(w); err != nil {
 			log.Fatal(err)
 		}
@@ -76,7 +76,7 @@ func loop(w *app.Window) error {
 					log.Printf("Up - select next/higher-id lamp")
 				case key.NameDownArrow:
 					log.Printf("Down - select prev/lower-id lamp")
-				case key.NameEnter:
+				case key.NameReturn:
 					log.Printf("ENTER! Toggle and Quit!")
 				}
 			case system.DestroyEvent:
