@@ -1,8 +1,11 @@
 package cmd
 
 import (
-	"errors"
+	"fmt"
+	"log"
+	"time"
 
+	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -11,6 +14,7 @@ import (
 )
 
 const flagHTTPPort = "http-port"
+const flagOpenBrowser = "open-browser"
 
 // serveCmd represents the serve command
 var serveCmd = &cobra.Command{
@@ -21,8 +25,15 @@ var serveCmd = &cobra.Command{
 	SilenceUsage:  true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		controller := hueController.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
-		if !controller.IsLoggedIn() {
-			return errors.New("missing login data; provide as args/env (see -h) or run huego-fe login")
+		if viper.GetBool(flagOpenBrowser) {
+			go func() {
+				// let's hope we exit/return on error (from web.Serve) before waking up here...
+				time.Sleep(100 * time.Millisecond)
+				err := browser.OpenURL(fmt.Sprintf("http://localhost%s", viper.GetString(flagHTTPPort)))
+				if err != nil {
+					log.Printf("Failed to start your web browser: %s", err)
+				}
+			}()
 		}
 		return web.Serve(viper.GetString(flagHTTPPort), controller, Version)
 	},
@@ -30,6 +41,8 @@ var serveCmd = &cobra.Command{
 
 func init() {
 	serveCmd.Flags().StringP(flagHTTPPort, "p", ":1984", "HTTP server TCP [IP]:port")
+	serveCmd.Flags().BoolP(flagOpenBrowser, "o", false, "points your browser to huego-fe")
 	_ = viper.BindPFlag(flagHTTPPort, serveCmd.Flags().Lookup(flagHTTPPort))
+	_ = viper.BindPFlag(flagOpenBrowser, serveCmd.Flags().Lookup(flagOpenBrowser))
 	rootCmd.AddCommand(serveCmd)
 }

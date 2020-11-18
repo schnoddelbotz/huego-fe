@@ -12,7 +12,7 @@ var colorCmd = &cobra.Command{
 	SilenceErrors: true,
 	SilenceUsage:  true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("color called")
+		fmt.Println("color called (unimplemented yet)")
 		return nil
 	},
 }

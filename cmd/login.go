@@ -15,13 +15,12 @@ var loginCmd = &cobra.Command{
 	SilenceUsage:  true,
 	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		ip, user, err := hueController.Login()
+		ctrl := hueController.New("", "")
+		err := ctrl.Login()
 		if err != nil {
 			return err
 		}
-		viper.Set(flagHueIP, ip)
-		viper.Set(flagHueUser, user)
-		err = viper.WriteConfig()
+		err = ctrl.SavePrefs()
 		if err != nil {
 			return err
 		}

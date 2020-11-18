@@ -224,18 +224,67 @@ UNpD5wQAAA==
 `,
 	},
 
+	"/assets/favicon.png": {
+		name:    "favicon.png",
+		local:   "assets/favicon.png",
+		size:    1271,
+		modtime: 1599439963,
+		compressed: `
+H4sIAAAAAAAC/wD3BAj7iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAM1BMVEUAAAD/
+//9AQECAgIAQEBC/v7/v7++fn5/f398wMDBgYGDPz8+Pj49QUFCvr68gICBwcHAvc9MEAAAEf0lEQVR4
+nO1byaKjIBBUQDHG7f+/djSaSdM0SwODh7EucxgflE2vhWmaBw8ePPgfsI5yx6hu2l4s7YXpDgpqan94
+v+rv/24h+to2QPvvNqhMYGoxZNX9hbV/5UPobAJVTbAS+7dDRQIbRaCd6xFYSAJTPQIDSaDiGZD7t+16
+N4F6TuAgUC8QHQQ69kKvWequ+2SV/R8tRxH3d1Qearn1QEhymUFv4dJqV4IT8bvPunescZIIuBOZCeMJ
+KEnHMUSvvXZwmCCqLVl1cPcT7xH+mTDcw2oHTkS4kJI+2yMMXwqf7m+A76fIbBwm8Aob37SCAJuZqVZc
+bgRfKEhg5G1/YBI/m1nrC6EaySCQsL8Bcn0ReqDc/rSTxxMg+jgeFnLZGTzhbQsVw/1p0O8HfcBrALqL
+YcBRanTwiROeA+j3QjQdRclvo5FeGKQkb09GJ4Beb4ZhxahdmaKn14VlwVdBqAhw5Pt1I/OspheGLuDz
+QXvNXrqffxH1gn496Np0lFwrWusFRvoVNwuOE4Cu7TsBXD77cNkYTZekXw+erLcrR57VxxTul8FgIx+B
+Tzii5APcwZCr+RlQlA3P9hoAxUDsCANHQPt/lXmu3i4OuUCcARp4cnbDO5rH6gsBq42OVpQ21/pqxF7l
+DyqUBWL3b9TfPzGHntVKl4E22nyYMcBomoA1UYQONZnATO5gpTVHmnYR4Mzx30g0EhcWSIL742GSoWd9
+48ewgDSXiwgq5DOMOf5rbcMHjN5iiBlokdOETfbDFUBmnv2t56upALgWMaTl0w1RmKsrOt5b5GnidoQz
+yB8HThQvIY6pJBYKEWAdwioiZQsfrJaYw6AEZkyg+hUD0WfqerJe4xgLqlKgRZWu4o2XazRbIlSxInDI
+OqchFinHPbDn4xrwGNKOYU3OhU/Ix8CBQRdIAVkMgFBVhEHSiP4uaQUZ3o9AyasQwdTpLiMUDFaVZISo
+WS4W0VrtP2PQKFqCqMjg+PRgctw61GLwgfjhynrrng0XWqwq6YkhvCaKQ8WLSYesX7eHIdIm/1YsD7a0
+l1EexfIe2A2QxSDdC6a0SMIpK/l6+pt+uZ9ZWNdziW7oEjrCwI6Y2Bz8WmKH3ukE9oLE62mgaDBv2HE3
+79fC3BiSV0AEUjMBGAqYbliIADgDphsVIuCVPH3APpBMAJwBKx0WigJjPGcpAzgVRqvMGEAiYWVDXJPT
+CzLoxhlmxCfAzWMAIKfGm8C6bM0QdmTKMlZLkvGlkhFPkcOeNT/kfCxmCNx9TChaF3eZX0oZK4U7bGp8
+GrL6ctOfAgrzTM7xeUoBNmjndCjXR06ZPbF9or2esU2V4/uuz+OZgxE9Er8XuZ2j2Sxl59UOcqeSNG3k
+h2ypKJNAvlSVRaAv8LFmDoGhxFSaQaDMzxeSCZSSCRMJlBNKkVw/dFLKpQuIVSWlYiPDgVKwik2SPAY7
+UWYB7kEUQ3Wkwqn7KvUj40ouDvDiTt/xoxzQXia31ln4GwRRd83/kMAt5j9wNqXdTa9/YN3jvv7vsR48
+ePDgTvwBNmUhGUCBzrgAAAAASUVORK5CYIIBAAD//zYHp8j3BAAA
+`,
+	},
+
 	"/assets/index.tpl.html": {
 		name:    "index.tpl.html",
 		local:   "assets/index.tpl.html",
-		size:    589,
-		modtime: 1605658321,
+		size:    638,
+		modtime: 1605721325,
 		compressed: `
-H4sIAAAAAAAC/3ySQWvjMBCF7/4Vg8lhF3YlkmOQdWkPDYS6tNBLKUW2xrZSWTKW3CYY//diy0kaUnqb
-4X1vxvMsVvla84hVKCSPAACYV14jrzos7f8Coe/JM7ZOWTMMjAYxgC5vVePBtXkSC+fQOyqahuxcDP7Q
-YBJ73Hu6Ex8ikDFnNFQ8YjRsZJmVBx6FgdWSb0XdOLAGslbJctp+1+HmYdxdLWew76EVpkRYKCNx/w8W
-WpWVh3UCZDtWDoZhHrnifR9ksrkdhtE8t/eixmnsar6n06GYGq14atZn+skLjySdQtDqEnxEkVci03jF
-n5SfbBKzrnyTXd2cfd85Ro9fdGONb6128OKttK/rIGed99aANblW+XsSN/YT29T8uTj4b8xTw2hg+W/G
-orh2FsXJCoSQY/po5JhwxGj4fYxOz+grAAD//ysI3bpNAgAA
+H4sIAAAAAAAC/3ySQWvcMBCF7/4Vg8ihhVYiOS6yLu2hgVCXFnoppcjW2FIiS0KS0wTj/15seXe7bOlt
+7Pe9x5uxuc6jFRXXKJWoAAB4Ntmi0BMO/n2PMM/0O8ZkvFsWzopYwNRFEzKk2NVEpoQ5MRkCfUwE8mvA
+mmR8yexRPstCEsFZmfYAa9wTRLQ1MZ13BHTEviZsz+rl8/qaBjcQUXFWKvLWq1dRlQB9Kx7kGBJ4B200
+atjqfprw/staVt/u4DxDlG5AuDFO4cs7uLFm0BkONdCHdUqwLHvknZjnItP7j8uymvfHz3LELfZu7z/Z
+MuzLiMYdzvS3LDPSZruaNZfgV5Sdlq3FK/6k/MumsJ2GX2oaw9n3N8fZsdEH73L0NsGP7JX/eShyO+Xs
+HXjXWdM91ST43xgb9+Zi4bdENI6zwor/Gfv+2tn3JytQSo/XR6fWC1eclc/H2fbf/QkAAP//cp5KM34C
+AAA=
+`,
+	},
+
+	"/assets/login.tpl.html": {
+		name:    "login.tpl.html",
+		local:   "assets/login.tpl.html",
+		size:    690,
+		modtime: 1605721325,
+		compressed: `
+H4sIAAAAAAAC/0ySz2vcPhDF7/4rXnz5XrLWN/RSWtml9Ac9BLKUlNKjYo0tUa3GlUa7hGX/9yJ7aXKy
+mXkzfN486ZvPD58ef+2/wMkhDI2uHwQT576l2NYCGTs0AKAPJAajMymT9O2Px6+7t+21JV4CDd8K4Z5n
+H6Fw7+NvKOyNT1D46YzQkZJWm3KbClWTKPStHzm2cImmvlUmZ5KsJnOs5W6Jc/uawIksO/pT/LFvE02J
+smsxchSK0rd371FS6KvonVKBRxMcZzmfuz0nuVxUqIAfjAgdFunP5+7j9nu5tFBDo9XmWD+xfR6aRru7
+1VdkQeUli2eSG63c3dA8RLhCM+8mQhaTpCy3iFxpJj+XZMRzxOQD4WQylsRHb8mqiUu06LoOmXEiRCIL
+YUw+ZcFK+LJYGM9cEjaKU9c0ehk0HYZ9IJMJS6KcIY62mz8VEY7gCOEFPL0MPyVv53XHjVZ0GLRahqZ5
+dD5jMTPh5EOAKcK7RIGN7fAQR1o31/HqwPo88pESWZhor6S1kcs4Us5TCbc40X8h4GTSAh+F/zlZyRMN
+30uMPs64ZoDXGVTgN//X02hVtU2j1ZaEVusT/RsAAP//D6HWc7ICAAA=
 `,
 	},
 
@@ -250,6 +299,8 @@ var _escDirs = map[string][]os.FileInfo{
 
 	"assets": {
 		_escData["/assets/app.js"],
+		_escData["/assets/favicon.png"],
 		_escData["/assets/index.tpl.html"],
+		_escData["/assets/login.tpl.html"],
 	},
 }

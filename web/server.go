@@ -17,6 +17,7 @@ import (
 
 type server struct {
 	hc      *hueController.Controller
+	Port    string
 	Version string
 }
 
@@ -29,6 +30,8 @@ type indexTemplateData struct {
 	HueIP   string
 	Lights  []huego.Light
 	Version string
+	Attempt int
+	Port    string
 }
 
 const (
@@ -37,16 +40,63 @@ const (
 )
 
 func Serve(port string, hc *hueController.Controller, huegofeVersion string) error {
-	srv := &server{hc: hc, Version: huegofeVersion}
-	http.Handle("/assets/", http.FileServer(_escFS(false)))
-	http.HandleFunc("/control/", srv.controlHandler)
-	http.HandleFunc("/", srv.indexHandler)
-	log.Printf("Controlling Hue: %s", hc.IP())
-	log.Printf("Starting huego-fe webserver %s on port %s", huegofeVersion, port)
-	return http.ListenAndServe(port, nil)
+	srv := &server{hc: hc, Port: port, Version: huegofeVersion}
+	log.Printf("Starting huego-fe %s webserver for Controlling Hue: %s", huegofeVersion, hc.IP())
+	log.Printf("Listening on %s ( visit http://localhost:%s/ )", huegofeVersion, port)
+	return http.ListenAndServe(port, accessLogHandler(serveMux(srv)))
+}
+
+func serveMux(srv *server) *http.ServeMux {
+	mux := http.NewServeMux()
+	mux.Handle("/assets/", http.FileServer(_escFS(false)))
+	mux.HandleFunc("/control/", srv.controlHandler)
+	mux.HandleFunc("/login", srv.loginHandler)
+	mux.HandleFunc("/", srv.indexHandler)
+	return mux
+}
+
+func (s *server) loginHandler(w http.ResponseWriter, r *http.Request) {
+	_attempt := r.URL.Query().Get("attempt")
+	attempt, err := strconv.Atoi(_attempt)
+	if _attempt == "" || err != nil {
+		http.Error(w, "No attempt?", http.StatusBadRequest)
+		return
+	}
+	if !s.hc.IsLoggedIn() {
+		if attempt > 29 {
+			w.Header().Set("Content-Type", "text/html")
+			_, _ = w.Write([]byte(`Unable to discover/login to Hue. <a href="/">Click here to retry</a>.`))
+			return
+		}
+		err := s.hc.Login()
+		if err == nil {
+			err = s.hc.SavePrefs()
+			if err != nil {
+				log.Printf("WARNING: Did NOT write Hue settings file. Must touch first: ~/.huego-fe.yml")
+			}
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
+		// maybe put param/counter into template ... and give up after n retries?
+		loginTemplate := _escFSMustByte(false, "/assets/login.tpl.html")
+		loginPage := &bytes.Buffer{}
+		tpl, _ := template.New("index").Parse(string(loginTemplate))
+		data := &indexTemplateData{
+			Attempt: attempt + 1,
+			Port:    s.Port,
+		}
+		_ = tpl.Execute(loginPage, data)
+		_, _ = w.Write(loginPage.Bytes())
+		return
+	}
+	http.Redirect(w, r, "/", 302)
 }
 
 func (s *server) indexHandler(w http.ResponseWriter, r *http.Request) {
+	if !s.hc.IsLoggedIn() {
+		http.Redirect(w, r, "/login?attempt=0", http.StatusFound)
+		return
+	}
 	lights, err := s.hc.Lights()
 	if err != nil {
 		w.WriteHeader(500)

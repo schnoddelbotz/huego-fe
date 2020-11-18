@@ -2,6 +2,7 @@ package hueController
 
 import (
 	"fmt"
+	"github.com/spf13/viper"
 
 	"github.com/amimof/huego"
 )
@@ -20,16 +21,27 @@ func New(ip string, user string) *Controller {
 	}
 }
 
-func Login() (string, string, error) {
+func (ctrl *Controller) SavePrefs() error {
+	const flagHueUser = "hue-user" // UGLY! copy pasta from cmd/root.go -- share elsewhere
+	const flagHueIP = "hue-ip"
+	viper.Set(flagHueUser, ctrl.bridgeUser)
+	viper.Set(flagHueIP, ctrl.bridgeIP)
+	return viper.WriteConfig()
+}
+
+func (ctrl *Controller) Login() error {
 	bridge, err := huego.Discover()
 	if err != nil {
-		return "", "", err
+		return err
 	}
 	user, err := bridge.CreateUser("huego-fe")
 	if err != nil {
-		return "", "", err
+		return err
 	}
-	return bridge.Host, user, nil
+	ctrl.bridgeIP = bridge.Host
+	ctrl.bridgeUser = user
+	ctrl.bridge = huego.New(ctrl.bridgeIP, ctrl.bridgeUser)
+	return nil
 }
 
 func (ctrl *Controller) IsLoggedIn() bool {

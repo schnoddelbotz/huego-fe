@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hue Login / Link / Pair / Whatever</title>
+    <link rel="icon" href="/assets/favicon.png">
+    <meta http-equiv="refresh" content="1; url=http://localhost{{.Port}}/login?attempt={{.Attempt}}" />
+</head>
+<body>
+
+<h1>Hue not linked yet!</h1>
+On huego-fe startup, no configuration file was provided/found ... so we need to first login huego-fe to your Hue now.
+
+<p><em>Please press the Link button on top of your Hue bridge now!</em></p>
+
+This page will auto-reload. Once the Hue was discovered and login was successful, we'll warp into huego-fe.
+
+<pre>Running attempt {{.Attempt}} of 30 ...</pre>
+
+</body>
+</html>

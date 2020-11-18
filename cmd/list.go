@@ -19,7 +19,7 @@ var listCmd = &cobra.Command{
 		if !controller.IsLoggedIn() {
 			return errors.New("missing login data; provide as args/env (see -h) or run huego-fe login")
 		}
-		controller.List() // gnah ... this should not print
+		controller.List()
 		return nil
 	},
 }
