@@ -2,29 +2,47 @@ package web
 
 import (
 	"bytes"
-	"github.com/amimof/huego"
+	"encoding/json"
+	"errors"
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
+
+	"github.com/amimof/huego"
+
+	"github.com/schnoddelbotz/huego-fe/hueController"
 )
-import "github.com/schnoddelbotz/huego-fe/hueController"
 
 type server struct {
-	hc *hueController.Controller
+	hc      *hueController.Controller
+	Version string
+}
+
+type response struct {
+	Message string
+	Error   string
 }
 
 type indexTemplateData struct {
-	HueIP  string
-	Lights []huego.Light
+	HueIP   string
+	Lights  []huego.Light
+	Version string
 }
 
-func Serve(port string, hc *hueController.Controller) error {
-	srv := &server{hc: hc}
+const (
+	PowerOn  = "PowerOn"
+	PowerOff = "PowerOff"
+)
+
+func Serve(port string, hc *hueController.Controller, huegofeVersion string) error {
+	srv := &server{hc: hc, Version: huegofeVersion}
 	http.Handle("/assets/", http.FileServer(_escFS(false)))
-	http.HandleFunc("/control", srv.controlHandler)
+	http.HandleFunc("/control/", srv.controlHandler)
 	http.HandleFunc("/", srv.indexHandler)
 	log.Printf("Controlling Hue: %s", hc.IP())
-	log.Printf("Starting huego-fe webserver on port %s", port)
+	log.Printf("Starting huego-fe webserver %s on port %s", huegofeVersion, port)
 	return http.ListenAndServe(port, nil)
 }
 
@@ -32,17 +50,54 @@ func (s *server) indexHandler(w http.ResponseWriter, r *http.Request) {
 	lights, err := s.hc.Lights()
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(err.Error()))
 	}
 	templateData := indexTemplateData{
-		HueIP:  s.hc.IP(),
-		Lights: lights,
+		HueIP:   s.hc.IP(),
+		Lights:  lights,
+		Version: s.Version,
 	}
-	w.Write(renderIndexTemplate(templateData))
+	_, _ = w.Write(renderIndexTemplate(templateData))
 }
 
 func (s *server) controlHandler(w http.ResponseWriter, r *http.Request) {
-	print("CTRL")
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 4 || pathParts[1] != "control" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	message, err := s.executeControlCommand(pathParts[2:])
+	data := response{
+		Message: message,
+	}
+	statusCode := 200
+	if err != nil {
+		data.Error = err.Error()
+		statusCode = 500
+	}
+
+	response, _ := json.Marshal(data) // panic on marshal error...?
+	w.WriteHeader(statusCode)
+	_, _ = w.Write(response)
+}
+
+func (s *server) executeControlCommand(args []string) (string, error) {
+	command := args[0]
+	light, err := strconv.Atoi(args[1])
+	if err != nil {
+		return "", err
+	}
+	log.Printf("Executing command: %s on light %d", command, light)
+	switch command {
+	case PowerOn:
+		return command, s.hc.PowerOn(light)
+	case PowerOff:
+		return command, s.hc.PowerOff(light)
+	// TBD MORE
+	default:
+		return "?", errors.New("unknown command")
+	}
 }
 
 func renderIndexTemplate(data indexTemplateData) []byte {

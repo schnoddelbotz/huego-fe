@@ -24,7 +24,7 @@ var serveCmd = &cobra.Command{
 		if !controller.IsLoggedIn() {
 			return errors.New("missing login data; provide as args/env (see -h) or run huego-fe login")
 		}
-		return web.Serve(viper.GetString(flagHTTPPort), controller)
+		return web.Serve(viper.GetString(flagHTTPPort), controller, Version)
 	},
 }
 
