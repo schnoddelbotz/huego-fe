@@ -1,15 +1,13 @@
 # huego-fe
 
-A more or less thin frontend / wrapper around [huego](https://github.com/amimof/huego).
-huego-fe only provides basic lights operations to the user (on, off, brightness, ...):
+A more or less thin cross-platform frontend / wrapper around [huego](https://github.com/amimof/huego).
+huego-fe only provides basic lights operations to the user (on, off, brightness, ... more to come):
 
 - [x] using [Cobra](https://cobra.dev/) for a sleek CLI interface 
-- [ ] using a web browser
+- [x] using a web browser
 - [ ] using a native UI (tray icon?)
 
-WIP. Just for fun.
-
-## Usage:
+## CLI usage
 
 ```bash
 $ huego-fe
@@ -39,11 +37,61 @@ Flags:
 Use "huego-fe [command] --help" for more information about a command.
 ```
 
-### Setup/Example
 
-#### CLI
+## Installation
 
-- Run `touch ~/.huego-fe.yml` or `touch ~/.huego-fe.json` once; the file will store Hue login data 
+If you have Go installed and want a build from current master:
+
+```bash
+go get github.com/schnoddelbotz/huego-fe
+```
+
+Otherwise, [download a binary release](./../../releases) and put the binary somewhere on your `PATH`.
+
+> Run `touch ~/.huego-fe.yml` or `touch ~/.huego-fe.json` once! 
+> The file will later store Hue login data ... but it must exist to get used. Don't ask.  Do.
+
+
+## Setup / Usage / Examples
+
+At first run after installation, link your Hue. UI, Web and CLI -- all can be used to Login / Link.
+
+### Web
+
+- Run `huego-fe serve --open-browser`. 
+
+Your browser should open, showing huego-fe web UI, asking you to push link button. Once pressed, 
+you should be warped into control UI.
+
+<!-- TODO:
+It's well imaginable to start webserver at boot, login ... or via socket activation.
+Examples might follow here.
+Just remember it does zero authentication ... [yet?] - anybody on your network will have full lights control :scream:!
+-->
+
+### CLI
+
 - Press Hue's link button to enable login
 - Run `huego-fe login` once
-- Try `huego-fe list; huego-fe on; huego-fe b 64; huego-fe off` etc.
+- Try `huego-fe list; huego-fe on; huego-fe b 64; huego-fe 0` etc.
+
+### UI -- WIP / NOT-HERE-YET / Idea ...
+
+- just run `huego-fe`
+
+It might be handy to assign a Keyboard shortcut to start huego-fe for later use. 
+Would let you switch a light with 2 keystrokes. For Gnome:
+
+- Go to settings, Keyboard shortcuts
+- Assign key to launch `huego-fe`
+
+- [ ] UI is tiny and optimized for quick keyboard control. Controls:
+    - [ ] Up/Dn: Select Light
+    - [ ] Enter: Toggle selected light's state and quit (default-selected button)
+    - [ ] Left/Right: -/+ brightness
+    - [ ] Delayed / Dimmed On/Off?
+
+# bugs
+
+Plenty for sure - have you seen a single test in here?
+Lame excuse: Toy project. Still, issues / PRs very welcome.
