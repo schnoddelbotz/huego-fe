@@ -1,10 +1,11 @@
 package hueController
 
 import (
+	"errors"
 	"fmt"
-	"github.com/spf13/viper"
 
 	"github.com/amimof/huego"
+	"github.com/spf13/viper"
 )
 
 type Controller struct {
@@ -54,6 +55,19 @@ func (ctrl *Controller) IP() string {
 
 func (ctrl *Controller) Lights() ([]huego.Light, error) {
 	return ctrl.bridge.GetLights()
+}
+
+func (ctrl *Controller) LightById(id int) (*huego.Light, error) {
+	lights, err := ctrl.bridge.GetLights()
+	if err != nil {
+		return nil, err
+	}
+	for _, light := range lights {
+		if light.ID == id {
+			return &light, nil
+		}
+	}
+	return nil, errors.New("light not found - check hue-light setting in ~/.huego-fe.yml")
 }
 
 func (ctrl *Controller) List() {
