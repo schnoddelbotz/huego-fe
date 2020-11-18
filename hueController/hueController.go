@@ -68,6 +68,7 @@ func (ctrl *Controller) List() {
 		}
 		fmt.Printf("%d: %s [%s]\n", light.ID, light.Name, light.ModelID)
 		fmt.Printf(listFormat, "PoweredOn", light.State.On)
+		fmt.Printf(listFormat, "Brightness", light.State.Bri)
 		fmt.Printf(listFormat, "Reachable", light.State.Reachable)
 		fmt.Printf(listFormat, "ColorMode", light.State.ColorMode)
 	}

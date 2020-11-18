@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -37,6 +38,7 @@ type indexTemplateData struct {
 const (
 	PowerOn  = "PowerOn"
 	PowerOff = "PowerOff"
+	Brightness = "Brightness"
 )
 
 func Serve(port string, hc *hueController.Controller, huegofeVersion string) error {
@@ -117,7 +119,7 @@ func (s *server) controlHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	message, err := s.executeControlCommand(pathParts[2:])
+	message, err := s.executeControlCommand(pathParts[2:], r.URL.Query())
 	data := response{
 		Message: message,
 	}
@@ -125,6 +127,7 @@ func (s *server) controlHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		data.Error = err.Error()
 		statusCode = 500
+		log.Printf("Control command failed: %s", err)
 	}
 
 	response, _ := json.Marshal(data) // panic on marshal error...?
@@ -132,18 +135,23 @@ func (s *server) controlHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(response)
 }
 
-func (s *server) executeControlCommand(args []string) (string, error) {
+func (s *server) executeControlCommand(args []string, query url.Values) (string, error) {
 	command := args[0]
 	light, err := strconv.Atoi(args[1])
 	if err != nil {
 		return "", err
 	}
-	log.Printf("Executing command: %s on light %d", command, light)
 	switch command {
 	case PowerOn:
 		return command, s.hc.PowerOn(light)
 	case PowerOff:
 		return command, s.hc.PowerOff(light)
+	case Brightness:
+		toValue, err := strconv.Atoi(query.Get("to"))
+		if err != nil {
+			return "!", err
+		}
+		return command, s.hc.SetBrightness(light, uint8(toValue))
 	// TBD MORE
 	default:
 		return "?", errors.New("unknown command")
