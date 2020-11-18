@@ -5,9 +5,12 @@ import (
 	"os"
 	"strings"
 
-	homedir "github.com/mitchellh/go-homedir"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/schnoddelbotz/huego-fe/gui"
+	"github.com/schnoddelbotz/huego-fe/hueController"
 )
 
 var Version = "0.0.0-dev"
@@ -22,6 +25,11 @@ const (
 var rootCmd = &cobra.Command{
 	Use:   "huego-fe",
 	Short: "huego-fe can control your philips hue stuff",
+	Run: func(cmd *cobra.Command, args []string) {
+		// start UI if huego-fe called w/o args
+		controller := hueController.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
+		gui.Main(controller, Version)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -35,6 +43,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	// todo: add completion
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.huego-fe.yaml)")
 	rootCmd.PersistentFlags().StringP(flagHueUser, "u", "", "Hue bridge user/token [$HUE_USER], see: huego-fe login -h")
 	rootCmd.PersistentFlags().StringP(flagHueIP, "i", "", "Hue bridge IP [$HUE_IP] , see: huego-fe login -h")

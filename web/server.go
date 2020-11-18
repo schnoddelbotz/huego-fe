@@ -36,8 +36,8 @@ type indexTemplateData struct {
 }
 
 const (
-	PowerOn  = "PowerOn"
-	PowerOff = "PowerOff"
+	PowerOn    = "PowerOn"
+	PowerOff   = "PowerOff"
 	Brightness = "Brightness"
 )
 
