@@ -74,7 +74,7 @@ func (s *server) loginHandler(w http.ResponseWriter, r *http.Request) {
 		if err == nil {
 			err = s.hc.SavePrefs()
 			if err != nil {
-				log.Printf("WARNING: Did NOT write Hue settings file. Must touch first: ~/.huego-fe.yml")
+				log.Fatalf("could not write Hue settings file: %s", err)
 			}
 			http.Redirect(w, r, "/", http.StatusFound)
 			return

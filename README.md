@@ -48,17 +48,15 @@ go get github.com/schnoddelbotz/huego-fe
 
 Otherwise, [download a binary release](./../../releases) and put the binary somewhere on your `PATH`.
 
-> Run `touch ~/.huego-fe.yml` or `touch ~/.huego-fe.json` once! 
-> The file will later store Hue login data ... but it must exist to get used. Don't ask.  Do.
-
-
 ## Setup / Usage / Examples
 
 At first run after installation, link your Hue. UI, Web and CLI -- all can be used to Login / Link.
+Hue address and login data will be stored in `~/.huego-fe.yml`. Should you ever want to re-link,
+delete the file.
 
 ### Web
 
-- Run `huego-fe serve --open-browser`. 
+- Run `huego-fe serve --open-browser` (or `huego-fe s -o` for short). 
 
 Your browser should open, showing huego-fe web UI, asking you to push link button. Once pressed, 
 you should be warped into control UI.

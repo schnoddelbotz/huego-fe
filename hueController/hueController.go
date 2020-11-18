@@ -27,7 +27,7 @@ func (ctrl *Controller) SavePrefs() error {
 	const flagHueIP = "hue-ip"
 	viper.Set(flagHueUser, ctrl.bridgeUser)
 	viper.Set(flagHueIP, ctrl.bridgeIP)
-	return viper.WriteConfig()
+	return viper.SafeWriteConfig()
 }
 
 func (ctrl *Controller) Login() error {
