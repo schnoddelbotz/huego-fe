@@ -21,7 +21,7 @@ func kitchen(gtx layout.Context, th *material.Theme) layout.Dimensions {
 				layout.Flexed(1, material.Slider(th, float, 0, 255).Layout),
 				layout.Rigid(func(gtx C) D {
 					return layout.UniformInset(unit.Dp(8)).Layout(gtx,
-						material.Body1(th, fmt.Sprintf("%.2f", float.Value)).Layout,
+						material.Body1(th, fmt.Sprintf("%.0f", float.Value)).Layout,
 					)
 				}),
 			)

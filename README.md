@@ -1,11 +1,11 @@
 # huego-fe
 
-A more or less thin cross-platform frontend / wrapper around [huego](https://github.com/amimof/huego).
+A cross-platform CLI, GUI and Web - frontend for [huego](https://github.com/amimof/huego).
 huego-fe only provides basic lights operations to the user (on, off, brightness, ... more to come):
 
 - [x] using [Cobra](https://cobra.dev/) for a sleek CLI interface 
 - [x] using a web browser
-- [ ] using a native UI (tray icon?)
+- [x] using [Gio](https://gioui.org/) for a native UI (inclomplete/wip)
 
 ## CLI usage
 
@@ -77,17 +77,21 @@ Just remember it does zero authentication ... [yet?] - anybody on your network w
 
 - just run `huego-fe`
 
-It might be handy to assign a Keyboard shortcut to start huego-fe for later use. 
-Would let you switch a light with 2 keystrokes. For Gnome:
+It might be handy to assign a Keyboard shortcut to start huego-fe for regular use. 
+Example setup for Gnome / Ubuntu 20.04:
 
-- Go to settings, Keyboard shortcuts
-- Assign key to launch `huego-fe`
+- Go to settings > Keyboard shortcuts, scroll to bottom, hit `+`
+- Given you put `huego-fe` into `$PATH` during installation, just use `huego-fe` here as Name and Command
+- Click `Set Shortcut` and e.g. choose/press Ctrl-F12
+- Pressing Ctrl-F12 will now bring up `huego-fe` with default `hue-light` as set in `~/.huego-fe.yml`  
 
-- [ ] UI is tiny and optimized for quick keyboard control. Controls:
-    - [ ] Up/Dn: Select Light
-    - [ ] Enter: Toggle selected light's state and quit (default-selected button)
-    - [ ] Left/Right: -/+ brightness
-    - [ ] Delayed / Dimmed On/Off?
+UI WIP/working status:
+- [x] UI is tiny and optimized for quick keyboard control
+- [ ] Up/Dn: Select Light
+- [ ] Enter: Toggle selected light's state and quit (default-selected button)
+- [x] Left/Right: -/+ brightness
+- [x] ESC: Quit
+- [ ] Delayed / Dimmed On/Off?
 
 # bugs
 
