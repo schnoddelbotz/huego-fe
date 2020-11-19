@@ -102,6 +102,7 @@ of your default lamp.
 
 - pairing via GUI
 - enable cobra shell auto-completion on commands / lights
+- changing brightness via slider does not update brightness (only kbd works)
 - add a cmd/install_linux.go that permits simple installation of systemd socket-activated `huego-fe serve`?
 - use index.tpl.html for link process, too
 - numeric lamp id vs name ... usage issues?

@@ -108,8 +108,9 @@ func loop(w *app.Window) error {
 			switch e := e.(type) {
 			case key.Event:
 				// log.Printf("HIT %+v", e.State)
-				// Linux gets state 0+1 (pressed+released) while Mac seems to see released only...
-				if e.State != 1 {
+				// Linux gets state 0+1 (pressed+released) while Mac seems to see 0 only...
+				// Only process one of the events...
+				if e.State != 0 {
 					// log.Print("ignoring key event, waiting for release event...")
 					continue
 				}
@@ -150,7 +151,7 @@ func loop(w *app.Window) error {
 					pwrChan <- powerToggle
 
 				case " ":
-					log.Printf("Return/Enter pressed - toggling state and saying bye")
+					log.Printf("Space pressed - toggling state and saying bye")
 					pwrChan <- powerToggle
 					go func() {
 						// how to wait/ensure command was sent (+successfully?) - wait on feedback chan?
