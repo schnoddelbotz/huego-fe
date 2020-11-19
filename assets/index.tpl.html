@@ -1,32 +1,64 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>huego-fe {{.Version}}</title>
+    <meta name="generator" content="Hugo 0.74.3" />
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>huego-fe - Hue Lights</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="assets/app.js" type="text/javascript"></script>
     <link rel="icon" href="/assets/favicon.png">
     <style type="text/css">
-        .reachable-true { color: green }
-        .reachable-false { color: red }
+        html { background: #252525; }
+        body { background: #ccc; margin: 30px; }
+        header, footer { color: #444; font-style: italic; font-size: 0.8em; background: black; padding: 20px; }
+        footer a { color: #444; }
+        main { margin: auto; }
+        h1 { float: right; color: #666; }
+        h2 { margin: 0; }
+        li { list-style: none; border: 1px solid #999; margin: 10px; padding: 5px; }
+        .reachable-true-bg { background: #ded; }
+        .reachable-false-bg { background: #edd; }
+        .reachable-true-fg { color: #333; }
+        .reachable-false-fg { color: #f33; }
+        span.b { font-weight: bold; }
     </style>
 </head>
 <body>
-
-    <h1>Lamps on bridge {{.HueIP}}</h1>
-
-    {{ range $index, $light := .Lights }}
-    <h2>{{$light.ID}}  {{$light.Name}}</h2>
-    <ul>
-        <li>On: {{$light.State.On}}</li>
-        <li>Reachable: <span class="reachable-{{$light.State.Reachable}}">{{$light.State.Reachable}}</span></li>
-        <li>debug_dump: <code>{{$light}}</code></li>
-    </ul>
-    Controls:
-    <button onclick="powerOn({{$light.ID}})">On</button>
-    <button onclick="powerOff({{$light.ID}})">Off</button>
-    <label>
-        Brightness
-        <input onchange="brightness({{$light.ID}}, this.value)" type="range" min="1" max="255" value="{{$light.State.Bri}}" />
-    </label>
-    {{ end }}
-
+    <header>
+        <h1>huego-fe - hue lights control</h1>
+        <img class="huelogo" src="{{.HueIP}}/hue-logo.png">
+    </header>
+    <main>
+        <ul>
+            {{ range $index, $light := .Lights }}
+            <li class="reachable-{{$light.State.Reachable}}-bg">
+                <h2>{{$light.Name}}</h2>
+                <i>{{$light.ModelID}}</i><br/>
+                ID: {{$light.ID}}.
+                {{if $light.State.Reachable}}
+                    <span class="b reachable-true-fg">reachable</span>
+                {{else}}
+                    <span class="b reachable-false-fg">UNREACHABLE</span>
+                {{end}}
+                and powered
+                {{if $light.State.On}}ON{{else}}OFF{{end}}.
+                <br/>
+                <!-- debug_dump: <code>{{$light}}</code> -->
+                <button onclick="powerOn({{$light.ID}})">On</button>
+                <button onclick="powerOff({{$light.ID}})">Off</button>
+                <label>
+                    Brightness
+                    <input onchange="brightness({{$light.ID}}, this.value)" type="range" min="1" max="255" value="{{$light.State.Bri}}" />
+                </label>
+            </li>
+            {{ end }}
+        </ul>
+    </main>
+    <footer>
+        <a href="https://github.com/schnoddelbotz/huego-fe">huego-fe</a> version {{.Version}} |
+        Linked to bridge <a href="{{.HueIP}}">{{.HueIP}}</a> |
+        huego-fe is <b>NOT</b> brought to you or related to PHILIPS.
+    </footer>
 </body>
 </html>
