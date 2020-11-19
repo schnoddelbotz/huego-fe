@@ -166,9 +166,10 @@ func loop(w *app.Window) error {
 				return e.Err
 			case system.FrameEvent:
 				gtx := layout.NewContext(&ops, e)
-				//for flatBtn.Clicked() {
-				//	w.ReadClipboard()
-				//}
+				for float.Changed() {
+					// log.Printf("user moved slider to: %f", float.Value)
+					briChan <- uint8(float.Value)
+				}
 				kitchen(gtx, th)
 				e.Frame(gtx.Ops)
 			}
