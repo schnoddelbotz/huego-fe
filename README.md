@@ -1,11 +1,8 @@
 # huego-fe
 
-A cross-platform CLI, GUI and Web - frontend for [huego](https://github.com/amimof/huego).
-huego-fe only provides basic lights operations to the user (on, off, brightness, ... more to come):
+A cross-platform CLI, GUI and Web - frontend for Philips Hue bridges, based on [huego](https://github.com/amimof/huego).
 
-- [x] using [Cobra](https://cobra.dev/) for a sleek CLI interface 
-- [x] using a web browser
-- [x] using [Gio](https://gioui.org/) for a native UI (inclomplete/wip)
+`huego-fe` focuses on basic lights operations (on, off, brightness, ... more to come potentially).
 
 ## CLI usage
 
@@ -40,7 +37,7 @@ Use "huego-fe [command] --help" for more information about a command.
 
 ## Installation
 
-If you have Go installed and want a build from current master:
+If you have [Go](https://golang.org/doc/install) installed and want to build from current master:
 
 ```bash
 go get github.com/schnoddelbotz/huego-fe
@@ -50,7 +47,7 @@ Otherwise, [download a binary release](./../../releases) and put the binary some
 
 ## Setup / Usage / Examples
 
-At first run after installation, link your Hue. UI, Web and CLI -- all can be used to Login / Link.
+At first run after installation, link your Hue. Web and CLI can currently be used to login / link.
 Hue address and login data will be stored in `~/.huego-fe.yml`. Should you ever want to re-link,
 delete the file.
 
@@ -61,39 +58,60 @@ delete the file.
 Your browser should open, showing huego-fe web UI, asking you to push link button. Once pressed, 
 you should be warped into control UI.
 
-<!-- TODO:
-It's well imaginable to start webserver at boot, login ... or via socket activation.
-Examples might follow here.
-Just remember it does zero authentication ... [yet?] - anybody on your network will have full lights control :scream:!
--->
-
 ### CLI
 
 - Press Hue's link button to enable login
 - Run `huego-fe login` once
 - Try `huego-fe list; huego-fe on; huego-fe b 64; huego-fe 0` etc.
 
-### UI -- WIP / NOT-HERE-YET / Idea ...
+### GUI
 
 - just run `huego-fe`
 
-It might be handy to assign a Keyboard shortcut to start huego-fe for regular use. 
+UI WIP/working status / keyboard shortcuts:
+
+- [ ] Up/Dn: Select Light
+- [x] PgUp/Home: Power on
+- [x] PgDn/End: Power off
+- [x] Enter/Return: Toggle selected light's state
+- [x] Left/Right: -/+ brightness 20
+- [x] Ctrl-Left/Right: -/+ brightness 10
+- [x] Shift-Left/Right: -/+ brightness 1
+- [x] Alt-Left/Right: brightness jump min/max
+- [x] Space: Toggle selected light's state and quit
+- [x] ESC: Quit
+- [ ] Delayed / Dimmed On/Off?
+
+As long as GUI light selection is missing, start `huego-fe` with `-l ...` to override default from `~/.huego-fe.yml`.
+
+#### Desktop integration
+
+It might be handy to assign a Keyboard shortcut to start `huego-fe` GUI for regular use. 
 Example setup for Gnome / Ubuntu 20.04:
 
 - Go to settings > Keyboard shortcuts, scroll to bottom, hit `+`
 - Given you put `huego-fe` into `$PATH` during installation, just use `huego-fe` here as Name and Command
 - Click `Set Shortcut` and e.g. choose/press Ctrl-F12
-- Pressing Ctrl-F12 will now bring up `huego-fe` with default `hue-light` as set in `~/.huego-fe.yml`  
 
-UI WIP/working status:
-- [x] UI is tiny and optimized for quick keyboard control
-- [ ] Up/Dn: Select Light
-- [ ] Enter: Toggle selected light's state and quit (default-selected button)
-- [x] Left/Right: -/+ brightness
-- [x] ESC: Quit
-- [ ] Delayed / Dimmed On/Off?
+Pressing Ctrl-F12 will now bring up `huego-fe` with default `hue-light` as set in `~/.huego-fe.yml`!
+
+You may want to additionally assign `huego-fe toggle` (to e.g. Ctrl-Shift-F12), permitting direct toggling
+of your default lamp.
+
+# todo
+
+- pairing via GUI
+- enable cobra shell auto-completion on commands / lights
+- add a cmd/install_linux.go that permits simple installation of systemd socket-activated `huego-fe serve`?
+- use index.tpl.html for link process, too
+- numeric lamp id vs name ... usage issues?
+
+# kudos to ...
+
+- [huego](https://github.com/amimof/huego) -- for making building `huego-fe` on top of it a simple joy
+- [Gio](https://gioui.org/) -- for enabling `huego-fe` GUI
+- [Cobra](https://cobra.dev/) -- for rocking `huego-fe` CLI
 
 # bugs
 
-Plenty for sure - have you seen a single test in here?
-Lame excuse: Toy project. Still, issues / PRs very welcome.
+Plenty for sure - have you seen a single test in here? Lame excuse: Toy project. Still, issues / PRs very welcome.

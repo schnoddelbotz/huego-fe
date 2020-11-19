@@ -44,8 +44,6 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	// todo: add completion
-	// todo: add install (_darwin / _linux / _win : launchd / socket-activation / service)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.huego-fe.yaml)")
 	rootCmd.PersistentFlags().StringP(flagHueUser, "u", "", "Hue bridge user/token [$HUE_USER], see: huego-fe login -h")
 	rootCmd.PersistentFlags().StringP(flagHueIP, "i", "", "Hue bridge IP [$HUE_IP] , see: huego-fe login -h")

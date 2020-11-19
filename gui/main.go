@@ -3,6 +3,7 @@ package gui
 import (
 	"log"
 	"os"
+	"time"
 
 	"gioui.org/app"
 	"gioui.org/font/gofont"
@@ -26,19 +27,23 @@ const (
 	floatDefaultStepSize float32 = 20.0
 	floatCtrlStepSize    float32 = 10.0
 	floatShiftStepSize   float32 = 1.0
+	powerOff             uint8   = iota
+	powerOn
+	powerToggle
 )
 
 var (
-	button  = new(widget.Clickable)
-	flatBtn = new(widget.Clickable)
-	list    = &layout.List{
+	buttonOn     = new(widget.Clickable)
+	buttonOff    = new(widget.Clickable)
+	buttonToggle = new(widget.Clickable)
+	float        = new(widget.Float)
+	list         = &layout.List{
 		Axis: layout.Vertical,
 	}
-	green         = true
 	topLabel      = "huego-fe"
-	float         = new(widget.Float)
 	selectedLight huego.Light
 	briChan       chan uint8
+	pwrChan       chan uint8
 )
 
 func Main(ctrl *hueController.Controller, appVersion string, selectLight int) {
@@ -59,8 +64,28 @@ func Main(ctrl *hueController.Controller, appVersion string, selectLight int) {
 	briChan = make(chan uint8, 100) // hack. make general cmd chan??
 	go func(l huego.Light) {
 		for newBrightness := range briChan {
-			log.Printf("Setting %d for...", newBrightness)
+			// put yet-ignored retval on some user feedback chan?
+			//log.Printf("Setting brightness %d for %s", newBrightness, l.Name)
 			selectedLight.Bri(newBrightness)
+		}
+	}(selectedLight)
+
+	pwrChan = make(chan uint8, 100) // hack. make general cmd chan??
+	go func(l huego.Light) {
+		for newState := range pwrChan {
+			//log.Printf("Setting pwr %d for %s", newState, l.Name)
+			switch newState {
+			case powerOff:
+				selectedLight.Off()
+			case powerOn:
+				selectedLight.On()
+			case powerToggle:
+				if selectedLight.State.On {
+					selectedLight.Off()
+				} else {
+					selectedLight.On()
+				}
+			}
 		}
 	}(selectedLight)
 
@@ -82,9 +107,16 @@ func loop(w *app.Window) error {
 		case e := <-w.Events():
 			switch e := e.(type) {
 			case key.Event:
+				// log.Printf("HIT %+v", e.State)
+				// Linux gets state 0+1 (pressed+released) while Mac seems to see released only...
+				if e.State != 1 {
+					// log.Print("ignoring key event, waiting for release event...")
+					continue
+				}
 				switch e.Name {
 				case key.NameEscape:
 					os.Exit(0)
+
 				case key.NameRightArrow:
 					// log.Printf("right with [modifiers=%s]. Was: %v", e.Modifiers, float.Value)
 					float.Value = getSliderValueFor(actionIncrease, float.Value, e.Modifiers)
@@ -95,21 +127,46 @@ func loop(w *app.Window) error {
 					float.Value = getSliderValueFor(actionDecrease, float.Value, e.Modifiers)
 					briChan <- uint8(float.Value)
 					w.Invalidate()
+
 				case key.NameUpArrow:
-					log.Printf("Up - select next/higher-id lamp")
+					log.Printf("TODO Up - select next/higher-id lamp")
 				case key.NameDownArrow:
-					log.Printf("Down - select prev/lower-id lamp")
+					log.Printf("TODO Down - select prev/lower-id lamp")
+
+				case key.NamePageUp:
+					fallthrough
+				case key.NameHome:
+					pwrChan <- powerOn
+
+				case key.NamePageDown:
+					fallthrough
+				case key.NameEnd:
+					pwrChan <- powerOff
+
 				case key.NameReturn:
-					log.Printf("ENTER! Toggle and Quit! (just cant toggle yet...)")
-					os.Exit(0)
+					fallthrough
+				case key.NameEnter:
+					//log.Printf("Space! Toggle!")
+					pwrChan <- powerToggle
+
+				case " ":
+					log.Printf("Return/Enter pressed - toggling state and saying bye")
+					pwrChan <- powerToggle
+					go func() {
+						// how to wait/ensure command was sent (+successfully?) - wait on feedback chan?
+						time.Sleep(250 * time.Millisecond)
+						os.Exit(0)
+					}()
+				default:
+					log.Printf("IGNORED: '%s'", e.Name)
 				}
 			case system.DestroyEvent:
 				return e.Err
 			case system.FrameEvent:
 				gtx := layout.NewContext(&ops, e)
-				for flatBtn.Clicked() {
-					w.ReadClipboard()
-				}
+				//for flatBtn.Clicked() {
+				//	w.ReadClipboard()
+				//}
 				kitchen(gtx, th)
 				e.Frame(gtx.Ops)
 			}

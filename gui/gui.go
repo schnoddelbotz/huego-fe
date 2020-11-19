@@ -31,26 +31,26 @@ func kitchen(gtx layout.Context, th *material.Theme) layout.Dimensions {
 			return layout.Flex{Alignment: layout.Middle}.Layout(gtx,
 				layout.Rigid(func(gtx C) D {
 					return in.Layout(gtx, func(gtx C) D {
-						for button.Clicked() {
-							green = !green
+						for buttonOff.Clicked() {
+							pwrChan <- powerOff
 						}
-						return material.Button(th, button, "Off").Layout(gtx)
+						return material.Button(th, buttonOff, "Off").Layout(gtx)
 					})
 				}),
 				layout.Rigid(func(gtx C) D {
 					return in.Layout(gtx, func(gtx C) D {
-						for button.Clicked() {
-							green = !green
+						for buttonOn.Clicked() {
+							pwrChan <- powerOn
 						}
-						return material.Button(th, button, "On").Layout(gtx)
+						return material.Button(th, buttonOn, "On").Layout(gtx)
 					})
 				}),
 				layout.Rigid(func(gtx C) D {
 					return in.Layout(gtx, func(gtx C) D {
-						for button.Clicked() {
-							green = !green
+						for buttonToggle.Clicked() {
+							pwrChan <- powerToggle
 						}
-						return material.Button(th, button, "Toggle").Layout(gtx)
+						return material.Button(th, buttonToggle, "Toggle").Layout(gtx)
 					})
 				}),
 			)
