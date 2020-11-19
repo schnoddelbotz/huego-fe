@@ -23,7 +23,7 @@ $(BINARY)_Windows: $(SRC_DEPENDS)
 
 $(BINARY)_Darwin: $(SRC_DEPENDS)
 	# building for the OS fka MacOS X
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags='$(LDFLAGS)'
+	GOOS=darwin GOARCH=amd64 go build -ldflags='$(LDFLAGS)'
 
 web/assets.go: $(ASSETS)
 	# building web/assets.go to embed web assets into huego-fe binary
