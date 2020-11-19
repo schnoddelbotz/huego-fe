@@ -147,10 +147,11 @@ func loop(w *app.Window) error {
 				case key.NameReturn:
 					fallthrough
 				case key.NameEnter:
-					//log.Printf("Space! Toggle!")
 					pwrChan <- powerToggle
 
-				case " ":
+				case "Space": // Mac (+Win?)
+					fallthrough
+				case " ": // Linux
 					log.Printf("Space pressed - toggling state and saying bye")
 					pwrChan <- powerToggle
 					go func() {

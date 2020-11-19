@@ -44,6 +44,8 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	// should disable moustrap on win (would display help text in console if clicked via explorer)
+	cobra.MousetrapHelpText = ""
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.huego-fe.yaml)")
 	rootCmd.PersistentFlags().StringP(flagHueUser, "u", "", "Hue bridge user/token [$HUE_USER], see: huego-fe login -h")
 	rootCmd.PersistentFlags().StringP(flagHueIP, "i", "", "Hue bridge IP [$HUE_IP] , see: huego-fe login -h")

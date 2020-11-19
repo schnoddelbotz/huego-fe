@@ -105,7 +105,8 @@ of your default lamp.
 - changing brightness via slider does not update brightness (only kbd works)
 - add a cmd/install_linux.go that permits simple installation of systemd socket-activated `huego-fe serve`?
 - use index.tpl.html for link process, too
-- numeric lamp id vs name ... usage issues?
+- numeric lamp id vs name ... usage issues? id stability?
+- split gui and cli/web binaries? build time for CLI/web only usage concerns + mousetrap breaks cli on win 
 
 # kudos to ...
 
