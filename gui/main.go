@@ -30,64 +30,52 @@ const (
 	powerOff             uint8   = iota
 	powerOn
 	powerToggle
+	powerUnknown
 )
 
 var (
-	buttonOn     = new(widget.Clickable)
-	buttonOff    = new(widget.Clickable)
-	buttonToggle = new(widget.Clickable)
-	float        = new(widget.Float)
-	list         = &layout.List{
-		Axis: layout.Vertical,
-	}
-	topLabel      = "huego-fe"
-	selectedLight huego.Light
+	selectedLight *huego.Light
 	briChan       chan uint8
 	pwrChan       chan uint8
+	loggedIn      = false
+	topLabel      = "huego-fe"
+	powerState    = powerUnknown
+	buttonOn      = new(widget.Clickable)
+	buttonOff     = new(widget.Clickable)
+	buttonToggle  = new(widget.Clickable)
+	float         = new(widget.Float)
+	list          = &layout.List{
+		Axis: layout.Vertical,
+	}
 )
 
 func Main(ctrl *hueController.Controller, appVersion string, selectLight int) {
 	topLabel = "huego-fe " + appVersion
 
 	if ctrl.IsLoggedIn() {
+		loggedIn = true
 		light, err := ctrl.LightById(selectLight) // FEELS BUGGY m(
 		if err != nil {
 			log.Fatal(err)
 		}
-		selectedLight = *light
+		selectedLight = light
 		topLabel = selectedLight.Name
+		if selectedLight.State.Reachable {
+			powerState = powerOff
+			if selectedLight.State.On {
+				powerState = powerOn
+			}
+		}
 		float.Value = float32(selectedLight.State.Bri)
 	} else {
 		topLabel = "Not paired yet & UI cannot yet"
 	}
 
 	briChan = make(chan uint8, 100) // hack. make general cmd chan??
-	go func(l huego.Light) {
-		for newBrightness := range briChan {
-			// put yet-ignored retval on some user feedback chan?
-			//log.Printf("Setting brightness %d for %s", newBrightness, l.Name)
-			selectedLight.Bri(newBrightness)
-		}
-	}(selectedLight)
+	go handleBrightnessAction(selectedLight)
 
 	pwrChan = make(chan uint8, 100) // hack. make general cmd chan??
-	go func(l huego.Light) {
-		for newState := range pwrChan {
-			//log.Printf("Setting pwr %d for %s", newState, l.Name)
-			switch newState {
-			case powerOff:
-				selectedLight.Off()
-			case powerOn:
-				selectedLight.On()
-			case powerToggle:
-				if selectedLight.State.On {
-					selectedLight.Off()
-				} else {
-					selectedLight.On()
-				}
-			}
-		}
-	}(selectedLight)
+	go handlePowerActions(selectedLight)
 
 	go func() {
 		w := app.NewWindow(app.Size(unit.Dp(400), unit.Dp(200)), app.Title("huego-fe - Hue Control UI"))
@@ -114,20 +102,21 @@ func loop(w *app.Window) error {
 					// log.Print("ignoring key event, waiting for release event...")
 					continue
 				}
-				switch e.Name {
-				case key.NameEscape:
+				if e.Name == key.NameEscape {
+					// always permit Escape, even if not logged in
 					os.Exit(0)
-
+				}
+				// While unpaired, stuff below will do no good... so:
+				if !loggedIn {
+					continue
+				}
+				switch e.Name {
 				case key.NameRightArrow:
-					// log.Printf("right with [modifiers=%s]. Was: %v", e.Modifiers, float.Value)
 					float.Value = getSliderValueFor(actionIncrease, float.Value, e.Modifiers)
 					briChan <- uint8(float.Value)
-					w.Invalidate()
 				case key.NameLeftArrow:
-					// log.Printf("left  with [modifiers=%s]. Was: %v", e.Modifiers, float.Value)
 					float.Value = getSliderValueFor(actionDecrease, float.Value, e.Modifiers)
 					briChan <- uint8(float.Value)
-					w.Invalidate()
 
 				case key.NameUpArrow:
 					log.Printf("TODO Up - select next/higher-id lamp")
@@ -152,28 +141,67 @@ func loop(w *app.Window) error {
 				case "Space": // Mac (+Win?)
 					fallthrough
 				case " ": // Linux
-					log.Printf("Space pressed - toggling state and saying bye")
+					//log.Printf("Space pressed - toggling state and saying bye")
 					pwrChan <- powerToggle
 					go func() {
 						// how to wait/ensure command was sent (+successfully?) - wait on feedback chan?
 						time.Sleep(250 * time.Millisecond)
 						os.Exit(0)
 					}()
-				default:
-					log.Printf("IGNORED: '%s'", e.Name)
+					//default:
+					//	log.Printf("IGNORED: Key '%s'", e.Name) -- also exit() here?
 				}
+
+				if e.State == 0 {
+					// invalidate after any keypress. not only too much as fired for ignored keys...
+					w.Invalidate()
+				}
+
 			case system.DestroyEvent:
 				return e.Err
 			case system.FrameEvent:
 				gtx := layout.NewContext(&ops, e)
-				for float.Changed() {
-					// log.Printf("user moved slider to: %f", float.Value)
-					briChan <- uint8(float.Value)
+				if loggedIn {
+					for float.Changed() {
+						// log.Printf("user moved slider using mouse to: %f", float.Value)
+						briChan <- uint8(float.Value)
+					}
 				}
 				kitchen(gtx, th)
 				e.Frame(gtx.Ops)
 			}
 		}
+	}
+}
+
+func handlePowerActions(light *huego.Light) {
+	for newState := range pwrChan {
+		switch newState {
+		case powerOff:
+			powerState = powerOff
+			light.Off()
+		case powerOn:
+			powerState = powerOn
+			light.On()
+		case powerToggle:
+			if light.State.On {
+				powerState = powerOff
+				light.Off()
+			} else {
+				powerState = powerOn
+				light.On()
+			}
+		}
+	}
+}
+
+func handleBrightnessAction(light *huego.Light) {
+	for newBrightness := range briChan {
+		// seems to be true? tweak brightness and it powers on by default...
+		powerState = powerOn
+		// put yet-ignored retval on some user feedback chan?
+		//log.Printf("Setting brightness %d for %s", newBrightness, l.Name)
+		light.Bri(newBrightness)
 	}
 }
 
