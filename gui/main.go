@@ -31,55 +31,74 @@ const (
 	powerOn
 	powerToggle
 	powerUnknown
+	cycleLightUp int8 = iota
+	cycleLightDown
 )
 
-var (
+type App struct {
+	w  *app.Window
+	ui *UI
+
 	selectedLight *huego.Light
 	briChan       chan uint8
 	pwrChan       chan uint8
-	loggedIn      = false
-	topLabel      = "huego-fe"
-	powerState    = powerUnknown
-	buttonOn      = new(widget.Clickable)
-	buttonOff     = new(widget.Clickable)
-	buttonToggle  = new(widget.Clickable)
-	float         = new(widget.Float)
-	list          = &layout.List{
-		Axis: layout.Vertical,
+	loggedIn      bool
+	topLabel      string
+	powerState    uint8
+}
+
+func newApp(w *app.Window) *App {
+	a := &App{
+		w:             w,
+		selectedLight: nil,
+		briChan:       make(chan uint8, 100),
+		pwrChan:       make(chan uint8, 100),
+		loggedIn:      false,
+		topLabel:      "huego-fe",
+		powerState:    0,
+		ui: &UI{
+			buttonOn:     new(widget.Clickable),
+			buttonOff:    new(widget.Clickable),
+			buttonToggle: new(widget.Clickable),
+			float:        new(widget.Float),
+			list: &layout.List{
+				Axis: layout.Vertical,
+			},
+		},
 	}
-)
+	return a
+}
 
 func Main(ctrl *hueController.Controller, appVersion string, selectLight int) {
-	topLabel = "huego-fe " + appVersion
+	gui := newApp(nil)
+	gui.topLabel = "huego-fe " + appVersion
 
 	if ctrl.IsLoggedIn() {
-		loggedIn = true
+		gui.loggedIn = true
 		light, err := ctrl.LightById(selectLight) // FEELS BUGGY m(
 		if err != nil {
 			log.Fatal(err)
 		}
-		selectedLight = light
-		topLabel = selectedLight.Name
-		if selectedLight.State.Reachable {
-			powerState = powerOff
-			if selectedLight.State.On {
-				powerState = powerOn
+		gui.selectedLight = light
+		gui.topLabel = gui.selectedLight.Name
+		if gui.selectedLight.State.Reachable {
+			gui.powerState = powerOff
+			if gui.selectedLight.State.On {
+				gui.powerState = powerOn
 			}
 		}
-		float.Value = float32(selectedLight.State.Bri)
+		gui.ui.float.Value = float32(gui.selectedLight.State.Bri)
 	} else {
-		topLabel = "Not paired yet & UI cannot yet"
+		gui.topLabel = "Please press Hue's link button"
 	}
 
-	briChan = make(chan uint8, 100) // hack. make general cmd chan??
-	go handleBrightnessAction(selectedLight)
-
-	pwrChan = make(chan uint8, 100) // hack. make general cmd chan??
-	go handlePowerActions(selectedLight)
+	go gui.handleBrightnessAction(gui.selectedLight)
+	go gui.handlePowerActions(gui.selectedLight)
 
 	go func() {
 		w := app.NewWindow(app.Size(unit.Dp(400), unit.Dp(200)), app.Title("huego-fe - Hue Control UI"))
-		if err := loop(w); err != nil {
+		gui.w = w
+		if err := gui.loop(); err != nil {
 			log.Fatal(err)
 		}
 		os.Exit(0)
@@ -87,12 +106,21 @@ func Main(ctrl *hueController.Controller, appVersion string, selectLight int) {
 	app.Main()
 }
 
-func loop(w *app.Window) error {
+func (a *App) cycleLight(op int8) {
+	// WIP!!!
+	// select up/dn next light
+	//currentLightID := a.selectedLight.ID
+	//ids = []int{}
+	//for _, l := range
+	log.Printf("TODO: cycle %d!", op)
+}
+
+func (a *App) loop() error {
 	th := material.NewTheme(gofont.Collection())
 	var ops op.Ops
 	for {
 		select {
-		case e := <-w.Events():
+		case e := <-a.w.Events():
 			switch e := e.(type) {
 			case key.Event:
 				// log.Printf("HIT %+v", e.State)
@@ -107,42 +135,42 @@ func loop(w *app.Window) error {
 					os.Exit(0)
 				}
 				// While unpaired, stuff below will do no good... so:
-				if !loggedIn {
+				if !a.loggedIn {
 					continue
 				}
 				switch e.Name {
 				case key.NameRightArrow:
-					float.Value = getSliderValueFor(actionIncrease, float.Value, e.Modifiers)
-					briChan <- uint8(float.Value)
+					a.ui.float.Value = getSliderValueFor(actionIncrease, a.ui.float.Value, e.Modifiers)
+					a.briChan <- uint8(a.ui.float.Value)
 				case key.NameLeftArrow:
-					float.Value = getSliderValueFor(actionDecrease, float.Value, e.Modifiers)
-					briChan <- uint8(float.Value)
+					a.ui.float.Value = getSliderValueFor(actionDecrease, a.ui.float.Value, e.Modifiers)
+					a.briChan <- uint8(a.ui.float.Value)
 
 				case key.NameUpArrow:
-					log.Printf("TODO Up - select next/higher-id lamp")
+					a.cycleLight(cycleLightUp)
 				case key.NameDownArrow:
-					log.Printf("TODO Down - select prev/lower-id lamp")
+					a.cycleLight(cycleLightDown)
 
 				case key.NamePageUp:
 					fallthrough
 				case key.NameHome:
-					pwrChan <- powerOn
+					a.pwrChan <- powerOn
 
 				case key.NamePageDown:
 					fallthrough
 				case key.NameEnd:
-					pwrChan <- powerOff
+					a.pwrChan <- powerOff
 
 				case key.NameReturn:
 					fallthrough
 				case key.NameEnter:
-					pwrChan <- powerToggle
+					a.pwrChan <- powerToggle
 
 				case "Space": // Mac (+Win?)
 					fallthrough
 				case " ": // Linux
 					//log.Printf("Space pressed - toggling state and saying bye")
-					pwrChan <- powerToggle
+					a.pwrChan <- powerToggle
 					go func() {
 						// how to wait/ensure command was sent (+successfully?) - wait on feedback chan?
 						time.Sleep(250 * time.Millisecond)
@@ -154,51 +182,51 @@ func loop(w *app.Window) error {
 
 				if e.State == 0 {
 					// invalidate after any keypress. not only too much as fired for ignored keys...
-					w.Invalidate()
+					a.w.Invalidate()
 				}
 
 			case system.DestroyEvent:
 				return e.Err
 			case system.FrameEvent:
 				gtx := layout.NewContext(&ops, e)
-				if loggedIn {
-					for float.Changed() {
+				if a.loggedIn {
+					for a.ui.float.Changed() {
 						// log.Printf("user moved slider using mouse to: %f", float.Value)
-						briChan <- uint8(float.Value)
+						a.briChan <- uint8(a.ui.float.Value)
 					}
 				}
-				kitchen(gtx, th)
+				a.kitchen(gtx, th)
 				e.Frame(gtx.Ops)
 			}
 		}
 	}
 }
 
-func handlePowerActions(light *huego.Light) {
-	for newState := range pwrChan {
+func (a *App) handlePowerActions(light *huego.Light) {
+	for newState := range a.pwrChan {
 		switch newState {
 		case powerOff:
-			powerState = powerOff
+			a.powerState = powerOff
 			light.Off()
 		case powerOn:
-			powerState = powerOn
+			a.powerState = powerOn
 			light.On()
 		case powerToggle:
 			if light.State.On {
-				powerState = powerOff
+				a.powerState = powerOff
 				light.Off()
 			} else {
-				powerState = powerOn
+				a.powerState = powerOn
 				light.On()
 			}
 		}
 	}
 }
 
-func handleBrightnessAction(light *huego.Light) {
-	for newBrightness := range briChan {
+func (a *App) handleBrightnessAction(light *huego.Light) {
+	for newBrightness := range a.briChan {
 		// seems to be true? tweak brightness and it powers on by default...
-		powerState = powerOn
+		a.powerState = powerOn
 		// put yet-ignored retval on some user feedback chan?
 		//log.Printf("Setting brightness %d for %s", newBrightness, l.Name)
 		light.Bri(newBrightness)
