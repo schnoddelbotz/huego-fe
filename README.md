@@ -11,17 +11,18 @@ $ huego-fe
 huego-fe can control your philips hue stuff
 
 Usage:
+  huego-fe [flags]
   huego-fe [command]
 
 Available Commands:
   brightness  control gravity
-  color       language agnostic eye pleasures
   help        Help about any command
   list        A brief description of your command
   login       Discover Hue bridge and log in -- press link button first!
   off         fusion reactor control plane
   on          engage rocket launcher
-  serve       runs the thing that philps frogot on the Hoe
+  serve       exposes Hue lights control via an ugly web interface
+  toggle      toggle toggles
   version     prints a bestseller novel on-demand
 
 Flags:
@@ -32,6 +33,7 @@ Flags:
   -u, --hue-user string   Hue bridge user/token [$HUE_USER], see: huego-fe login -h
 
 Use "huego-fe [command] --help" for more information about a command.
+
 ```
 
 
@@ -68,21 +70,22 @@ you should be warped into control UI.
 
 - just run `huego-fe`
 
-UI WIP/working status / keyboard shortcuts:
+Keyboard shortcuts:
 
-- [x] Up/Dn: Select Light
-- [x] PgUp/Home: Power on
-- [x] PgDn/End: Power off
-- [x] Enter/Return: Toggle selected light's state
-- [x] Left/Right: -/+ brightness 20
-- [x] Ctrl-Left/Right: -/+ brightness 10
-- [x] Shift-Left/Right: -/+ brightness 1
-- [x] Alt-Left/Right: brightness jump min/max
-- [x] Space: Toggle selected light's state and quit
-- [x] ESC: Quit
-- [ ] Delayed / Dimmed On/Off?
+| Key(s)                                         | Action                      |
+|------------------------------------------------|-----------------------------|
+| <kbd>⇧</kbd> / <kbd>⇩</kbd>                    | select light                |
+| <kbd>⇦</kbd> / <kbd>⇨</kbd>                    | brightness -/+ 20           |
+| <kbd>Ctrl</kbd> + <kbd>⇦</kbd> / <kbd>⇨</kbd>  | brightness -/+ 10           |
+| <kbd>Shift</kbd> + <kbd>⇦</kbd> / <kbd>⇨</kbd> | brightness -/+ 1            |
+| <kbd>Alt</kbd> + <kbd>⇦</kbd> / <kbd>⇨</kbd>   | brightness jump min/max     |
+| <kbd>PgUp</kbd> / <kbd>Home</kbd>              | power on                    |
+| <kbd>PgDn</kbd> / <kbd>End</kbd>               | power off                   |
+| <kbd>⏎</kbd> / <kbd>Enter</kbd>                | toggle power state          | 
+| <kbd>Space</kbd>                               | toggle and quit             |
+| <kbd>ESC</kbd>                                 | quit                        |
 
-To override default light (from `~/.huego-fe.yml`) at GUI startup, use `-l` command line flag.
+To override GUI startup default light (as read from `~/.huego-fe.yml`), use `-l` command line flag.
 
 #### Desktop integration
 
