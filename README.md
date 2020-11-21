@@ -47,9 +47,9 @@ Otherwise, [download a binary release](./../../releases) and put the binary some
 
 ## Setup / Usage / Examples
 
-At first run after installation, link your Hue. Web and CLI can currently be used to login / link.
-Hue address and login data will be stored in `~/.huego-fe.yml`. Should you ever want to re-link,
-delete the file.
+At first run after installation, `huego-fe` needs to be linked to your Hue.
+Hue address and login data will be stored in `~/.huego-fe.yml`.
+Should you ever want to re-link, delete the file.
 
 ### Web
 
@@ -96,16 +96,16 @@ Example setup for Gnome / Ubuntu 20.04:
 Pressing Ctrl-F12 will now bring up `huego-fe` with default `hue-light` as set in `~/.huego-fe.yml`!
 
 You may want to additionally assign `huego-fe toggle` (to e.g. Ctrl-Shift-F12), permitting direct toggling
-of your default lamp.
+of your default lamp. To toggle a specific lamp, just append `-l <lamp_id>` (use `huego-fe list` to get IDs).
 
 # todo
 
-- pairing via GUI
 - enable cobra shell auto-completion on commands / lights
 - add a cmd/install_linux.go that permits simple installation of systemd socket-activated `huego-fe serve`?
 - use index.tpl.html for link process, too
 - numeric lamp id vs name ... usage issues? id stability?
 - split gui and cli/web binaries? build time for CLI/web only usage concerns + mousetrap breaks cli on win 
+- TODOs/FIXMEs in code...
 
 # kudos to ...
 
