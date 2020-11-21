@@ -19,8 +19,8 @@ type UI struct {
 }
 
 var (
-	colorBtnDisabled = color.RGBA{A: 0x77}
-	colorBtnEnabled  = color.RGBA{A: 0xcc}
+	colorBtnDisabled = color.NRGBA{A: 0x77}
+	colorBtnEnabled  = color.NRGBA{A: 0xcc}
 )
 
 type (
