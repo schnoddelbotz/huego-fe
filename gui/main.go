@@ -3,6 +3,7 @@ package gui
 import (
 	"log"
 	"os"
+	"sort"
 	"time"
 
 	"gioui.org/app"
@@ -36,8 +37,9 @@ const (
 )
 
 type App struct {
-	w  *app.Window
-	ui *UI
+	w    *app.Window
+	ui   *UI
+	ctrl *hueController.Controller
 
 	selectedLight *huego.Light
 	briChan       chan uint8
@@ -47,9 +49,10 @@ type App struct {
 	powerState    uint8
 }
 
-func newApp(w *app.Window) *App {
+func newApp(w *app.Window, c *hueController.Controller) *App {
 	a := &App{
 		w:             w,
+		ctrl:          c,
 		selectedLight: nil,
 		briChan:       make(chan uint8, 100),
 		pwrChan:       make(chan uint8, 100),
@@ -70,35 +73,35 @@ func newApp(w *app.Window) *App {
 }
 
 func Main(ctrl *hueController.Controller, appVersion string, selectLight int) {
-	gui := newApp(nil)
-	gui.topLabel = "huego-fe " + appVersion
+	a := newApp(nil, ctrl)
+	a.topLabel = "huego-fe " + appVersion
 
 	if ctrl.IsLoggedIn() {
-		gui.loggedIn = true
+		a.loggedIn = true
 		light, err := ctrl.LightById(selectLight) // FEELS BUGGY m(
 		if err != nil {
 			log.Fatal(err)
 		}
-		gui.selectedLight = light
-		gui.topLabel = gui.selectedLight.Name
-		if gui.selectedLight.State.Reachable {
-			gui.powerState = powerOff
-			if gui.selectedLight.State.On {
-				gui.powerState = powerOn
+		a.selectedLight = light
+		a.topLabel = a.selectedLight.Name
+		if a.selectedLight.State.Reachable {
+			a.powerState = powerOff
+			if a.selectedLight.State.On {
+				a.powerState = powerOn
 			}
 		}
-		gui.ui.float.Value = float32(gui.selectedLight.State.Bri)
+		a.ui.float.Value = float32(a.selectedLight.State.Bri)
 	} else {
-		gui.topLabel = "Please press Hue's link button"
+		a.topLabel = "Please press Hue's link button"
 	}
 
-	go gui.handleBrightnessAction(gui.selectedLight)
-	go gui.handlePowerActions(gui.selectedLight)
+	go a.handleBrightnessAction()
+	go a.handlePowerActions()
 
 	go func() {
 		w := app.NewWindow(app.Size(unit.Dp(400), unit.Dp(200)), app.Title("huego-fe - Hue Control UI"))
-		gui.w = w
-		if err := gui.loop(); err != nil {
+		a.w = w
+		if err := a.loop(); err != nil {
 			log.Fatal(err)
 		}
 		os.Exit(0)
@@ -106,13 +109,70 @@ func Main(ctrl *hueController.Controller, appVersion string, selectLight int) {
 	app.Main()
 }
 
-func (a *App) cycleLight(op int8) {
-	// WIP!!!
-	// select up/dn next light
-	//currentLightID := a.selectedLight.ID
-	//ids = []int{}
-	//for _, l := range
-	log.Printf("TODO: cycle %d!", op)
+func (a *App) cycleLight(op int8) error {
+	lights, err := a.getSortedLampIDs()
+	if err != nil {
+		return err
+	}
+	currentID := a.selectedLight.ID
+	cycleToID := a.selectedLight.ID
+	switch op {
+	case cycleLightUp:
+		cycleToID = getLightIDHigherThan(a.selectedLight.ID, lights)
+	case cycleLightDown:
+		cycleToID = getLightIDLowerThan(a.selectedLight.ID, lights)
+	}
+	if currentID == cycleToID {
+		return nil
+	}
+	newLight, err := a.ctrl.LightById(cycleToID)
+	if err != nil {
+		return nil
+	}
+	// extract: !
+	a.selectedLight = newLight
+	a.topLabel = a.selectedLight.Name
+	a.ui.float.Value = float32(a.selectedLight.State.Bri)
+	// FIXME: button state update (on/off status "display")
+	return nil
+}
+
+func getSliceIndex(haystack []int, needle int) int {
+	for index, val := range haystack {
+		if val == needle {
+			return index
+		}
+	}
+	return -1
+}
+
+func getLightIDHigherThan(currentID int, lights []int) int {
+	currentLightIndex := getSliceIndex(lights, currentID)
+	if currentLightIndex+1 < len(lights) {
+		return lights[currentLightIndex+1]
+	}
+	return currentID
+}
+
+func getLightIDLowerThan(currentID int, lights []int) int {
+	currentLightIndex := getSliceIndex(lights, currentID)
+	if currentLightIndex > 0 {
+		return lights[currentLightIndex-1]
+	}
+	return currentID
+}
+
+func (a *App) getSortedLampIDs() ([]int, error) {
+	var ids []int
+	lights, err := a.ctrl.Lights()
+	if err != nil {
+		return ids, err
+	}
+	for _, l := range lights {
+		ids = append(ids, l.ID)
+	}
+	sort.Ints(ids)
+	return ids, nil
 }
 
 func (a *App) loop() error {
@@ -202,34 +262,34 @@ func (a *App) loop() error {
 	}
 }
 
-func (a *App) handlePowerActions(light *huego.Light) {
+func (a *App) handlePowerActions() {
 	for newState := range a.pwrChan {
 		switch newState {
 		case powerOff:
 			a.powerState = powerOff
-			light.Off()
+			a.selectedLight.Off()
 		case powerOn:
 			a.powerState = powerOn
-			light.On()
+			a.selectedLight.On()
 		case powerToggle:
-			if light.State.On {
+			if a.selectedLight.State.On {
 				a.powerState = powerOff
-				light.Off()
+				a.selectedLight.Off()
 			} else {
 				a.powerState = powerOn
-				light.On()
+				a.selectedLight.On()
 			}
 		}
 	}
 }
 
-func (a *App) handleBrightnessAction(light *huego.Light) {
+func (a *App) handleBrightnessAction() {
 	for newBrightness := range a.briChan {
 		// seems to be true? tweak brightness and it powers on by default...
 		a.powerState = powerOn
 		// put yet-ignored retval on some user feedback chan?
 		//log.Printf("Setting brightness %d for %s", newBrightness, l.Name)
-		light.Bri(newBrightness)
+		a.selectedLight.Bri(newBrightness)
 	}
 }
 

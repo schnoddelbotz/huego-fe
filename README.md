@@ -70,7 +70,7 @@ you should be warped into control UI.
 
 UI WIP/working status / keyboard shortcuts:
 
-- [ ] Up/Dn: Select Light
+- [x] Up/Dn: Select Light
 - [x] PgUp/Home: Power on
 - [x] PgDn/End: Power off
 - [x] Enter/Return: Toggle selected light's state
@@ -82,7 +82,7 @@ UI WIP/working status / keyboard shortcuts:
 - [x] ESC: Quit
 - [ ] Delayed / Dimmed On/Off?
 
-As long as GUI light selection is missing, start `huego-fe` with `-l ...` to override default from `~/.huego-fe.yml`.
+To override default light (from `~/.huego-fe.yml`) at GUI startup, use `-l` command line flag.
 
 #### Desktop integration
 
