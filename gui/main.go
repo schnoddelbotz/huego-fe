@@ -2,7 +2,6 @@ package gui
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"time"
@@ -162,15 +161,15 @@ func (a *App) loop() error {
 
 func (a *App) login() {
 	// TODO: This has zero GUI feedback beyond "please press..." (and dies only via console msg...)
-	log.Printf("Trying to log in ...")
+	log.Printf("trying to log in ...")
 	for a.loggedIn == false {
-		log.Printf("Retrying login ... ")
+		log.Printf("retrying login ... ")
 		// bad. copy-paste from cmd/login.go. fixme.
 		err := a.ctrl.Login()
 		if err == nil {
 			perr := a.ctrl.SavePrefs()
 			if perr != nil {
-				log.Fatalf("Pairing success, but unable to save prefs! Error: %s", err)
+				log.Fatalf("pairing success, but unable to save prefs! Error: %s", err)
 			}
 			a.loggedIn = true
 			lights, err := a.getSortedLampIDs()
@@ -184,10 +183,10 @@ func (a *App) login() {
 			if err != nil {
 				log.Fatalf("unable to select light: %s", err)
 			}
-			fmt.Printf("Login succes, saved to: %s\n", viper.ConfigFileUsed())
+			fmt.Printf("login succes!")
 			return
 		}
-		log.Printf("Still no pairing success, sleeping 2 seconds ...")
+		log.Printf("still no pairing success, sleeping 2 seconds ...")
 		time.Sleep(2*time.Second)
 	}
 }
