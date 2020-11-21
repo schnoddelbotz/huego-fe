@@ -61,7 +61,10 @@ func (a *App) selectLightByID(lightID int) error {
 	a.selectedLight = newLight
 	a.topLabel = a.selectedLight.Name
 	a.ui.float.Value = float32(a.selectedLight.State.Bri)
-	// TODO: Fix buttons -- update to current powerstate
+	a.powerState = powerOff
+	if a.selectedLight.State.On {
+		a.powerState = powerOn
+	}
 	a.w.Invalidate()
 	return nil
 }
