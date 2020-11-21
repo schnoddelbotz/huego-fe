@@ -1,9 +1,10 @@
 package gui
 
 import (
+	"fmt"
+	"github.com/spf13/viper"
 	"log"
 	"os"
-	"sort"
 	"time"
 
 	"gioui.org/app"
@@ -13,9 +14,7 @@ import (
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/unit"
-	"gioui.org/widget"
 	"gioui.org/widget/material"
-	"github.com/amimof/huego"
 
 	"github.com/schnoddelbotz/huego-fe/hueController"
 )
@@ -31,46 +30,9 @@ const (
 	powerOff             uint8   = iota
 	powerOn
 	powerToggle
-	powerUnknown
 	cycleLightUp int8 = iota
 	cycleLightDown
 )
-
-type App struct {
-	w    *app.Window
-	ui   *UI
-	ctrl *hueController.Controller
-
-	selectedLight *huego.Light
-	briChan       chan uint8
-	pwrChan       chan uint8
-	loggedIn      bool
-	topLabel      string
-	powerState    uint8
-}
-
-func newApp(w *app.Window, c *hueController.Controller) *App {
-	a := &App{
-		w:             w,
-		ctrl:          c,
-		selectedLight: nil,
-		briChan:       make(chan uint8, 100),
-		pwrChan:       make(chan uint8, 100),
-		loggedIn:      false,
-		topLabel:      "huego-fe",
-		powerState:    0,
-		ui: &UI{
-			buttonOn:     new(widget.Clickable),
-			buttonOff:    new(widget.Clickable),
-			buttonToggle: new(widget.Clickable),
-			float:        new(widget.Float),
-			list: &layout.List{
-				Axis: layout.Vertical,
-			},
-		},
-	}
-	return a
-}
 
 func Main(ctrl *hueController.Controller, appVersion string, selectLight int) {
 	a := newApp(nil, ctrl)
@@ -78,7 +40,7 @@ func Main(ctrl *hueController.Controller, appVersion string, selectLight int) {
 
 	if ctrl.IsLoggedIn() {
 		a.loggedIn = true
-		light, err := ctrl.LightById(selectLight) // FEELS BUGGY m(
+		light, err := ctrl.LightById(selectLight)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -93,6 +55,7 @@ func Main(ctrl *hueController.Controller, appVersion string, selectLight int) {
 		a.ui.float.Value = float32(a.selectedLight.State.Bri)
 	} else {
 		a.topLabel = "Please press Hue's link button"
+		go a.login()
 	}
 
 	go a.handleBrightnessAction()
@@ -107,72 +70,6 @@ func Main(ctrl *hueController.Controller, appVersion string, selectLight int) {
 		os.Exit(0)
 	}()
 	app.Main()
-}
-
-func (a *App) cycleLight(op int8) error {
-	lights, err := a.getSortedLampIDs()
-	if err != nil {
-		return err
-	}
-	currentID := a.selectedLight.ID
-	cycleToID := a.selectedLight.ID
-	switch op {
-	case cycleLightUp:
-		cycleToID = getLightIDHigherThan(a.selectedLight.ID, lights)
-	case cycleLightDown:
-		cycleToID = getLightIDLowerThan(a.selectedLight.ID, lights)
-	}
-	if currentID == cycleToID {
-		return nil
-	}
-	newLight, err := a.ctrl.LightById(cycleToID)
-	if err != nil {
-		return nil
-	}
-	// extract: !
-	a.selectedLight = newLight
-	a.topLabel = a.selectedLight.Name
-	a.ui.float.Value = float32(a.selectedLight.State.Bri)
-	// FIXME: button state update (on/off status "display")
-	return nil
-}
-
-func getSliceIndex(haystack []int, needle int) int {
-	for index, val := range haystack {
-		if val == needle {
-			return index
-		}
-	}
-	return -1
-}
-
-func getLightIDHigherThan(currentID int, lights []int) int {
-	currentLightIndex := getSliceIndex(lights, currentID)
-	if currentLightIndex+1 < len(lights) {
-		return lights[currentLightIndex+1]
-	}
-	return currentID
-}
-
-func getLightIDLowerThan(currentID int, lights []int) int {
-	currentLightIndex := getSliceIndex(lights, currentID)
-	if currentLightIndex > 0 {
-		return lights[currentLightIndex-1]
-	}
-	return currentID
-}
-
-func (a *App) getSortedLampIDs() ([]int, error) {
-	var ids []int
-	lights, err := a.ctrl.Lights()
-	if err != nil {
-		return ids, err
-	}
-	for _, l := range lights {
-		ids = append(ids, l.ID)
-	}
-	sort.Ints(ids)
-	return ids, nil
 }
 
 func (a *App) loop() error {
@@ -221,6 +118,7 @@ func (a *App) loop() error {
 				case key.NameEnd:
 					a.pwrChan <- powerOff
 
+				// TODO: Cleanup (key bindings) -- Confusing!
 				case key.NameReturn:
 					fallthrough
 				case key.NameEnter:
@@ -262,34 +160,35 @@ func (a *App) loop() error {
 	}
 }
 
-func (a *App) handlePowerActions() {
-	for newState := range a.pwrChan {
-		switch newState {
-		case powerOff:
-			a.powerState = powerOff
-			a.selectedLight.Off()
-		case powerOn:
-			a.powerState = powerOn
-			a.selectedLight.On()
-		case powerToggle:
-			if a.selectedLight.State.On {
-				a.powerState = powerOff
-				a.selectedLight.Off()
-			} else {
-				a.powerState = powerOn
-				a.selectedLight.On()
+func (a *App) login() {
+	// TODO: This has zero GUI feedback beyond "please press..." (and dies only via console msg...)
+	log.Printf("Trying to log in ...")
+	for a.loggedIn == false {
+		log.Printf("Retrying login ... ")
+		// bad. copy-paste from cmd/login.go. fixme.
+		err := a.ctrl.Login()
+		if err == nil {
+			perr := a.ctrl.SavePrefs()
+			if perr != nil {
+				log.Fatalf("Pairing success, but unable to save prefs! Error: %s", err)
 			}
+			a.loggedIn = true
+			lights, err := a.getSortedLampIDs()
+			if err != nil {
+				log.Fatalf("error during initial lamp listing: %s", err)
+			}
+			if len(lights) == 0 {
+				log.Fatalf("no lights on Hue found?!")
+			}
+			err = a.selectLightByID(lights[0])
+			if err != nil {
+				log.Fatalf("unable to select light: %s", err)
+			}
+			fmt.Printf("Login succes, saved to: %s\n", viper.ConfigFileUsed())
+			return
 		}
-	}
-}
-
-func (a *App) handleBrightnessAction() {
-	for newBrightness := range a.briChan {
-		// seems to be true? tweak brightness and it powers on by default...
-		a.powerState = powerOn
-		// put yet-ignored retval on some user feedback chan?
-		//log.Printf("Setting brightness %d for %s", newBrightness, l.Name)
-		a.selectedLight.Bri(newBrightness)
+		log.Printf("Still no pairing success, sleeping 2 seconds ...")
+		time.Sleep(2*time.Second)
 	}
 }
 
