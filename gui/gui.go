@@ -11,11 +11,13 @@ import (
 )
 
 type UI struct {
-	buttonOn     *widget.Clickable
-	buttonOff    *widget.Clickable
-	buttonToggle *widget.Clickable
-	float        *widget.Float
-	list         *layout.List
+	buttonOn         *widget.Clickable
+	buttonOff        *widget.Clickable
+	buttonToggle     *widget.Clickable
+	reachableIB      *widget.Clickable // fake... just to put (un)reachable icon on it. no click action :/
+	float            *widget.Float
+	list             *layout.List
+	reachableIconMap map[bool]*widget.Icon
 }
 
 var (
@@ -32,10 +34,26 @@ type (
 
 func (a *App) controlPanel(gtx layout.Context, th *material.Theme) layout.Dimensions {
 	widgets := []layout.Widget{
-		material.Label(th, unit.Dp(20), a.selectedLight.Name).Layout,
+		func(gtx C) D {
+			return layout.Flex{Alignment: layout.Start}.Layout(gtx,
+				layout.Flexed(1, func(gtx C) D {
+					return layout.UniformInset(unit.Dp(10)).Layout(gtx,
+						material.Label(th, unit.Dp(20), a.selectedLight.Name).Layout,
+					)
+				}),
+				layout.Rigid(func(gtx C) D {
+					return layout.Inset{
+						Top: unit.Dp(10), Right: unit.Dp(10), Bottom: unit.Dp(0), Left: unit.Dp(1),
+					}.Layout(gtx,
+						material.IconButton(th, a.ui.reachableIB, a.ui.reachableIconMap[a.selectedLight.State.Reachable]).Layout,
+					)
+				}),
+			)
+		},
 		func(gtx C) D {
 			return layout.Flex{Alignment: layout.Middle}.Layout(gtx,
 				// todo: make slider gray/disabled if lamp is powerd off
+				layout.Flexed(0.5, material.Label(th, unit.Dp(14), "  Brightness").Layout),
 				layout.Flexed(1, material.Slider(th, a.ui.float, 0, 255).Layout),
 				layout.Rigid(func(gtx C) D {
 					return layout.UniformInset(unit.Dp(8)).Layout(gtx,

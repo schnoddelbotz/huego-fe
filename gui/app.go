@@ -5,6 +5,7 @@ import (
 	"gioui.org/layout"
 	"gioui.org/widget"
 	"github.com/amimof/huego"
+	"golang.org/x/exp/shiny/materialdesign/icons"
 
 	"github.com/schnoddelbotz/huego-fe/hueController"
 )
@@ -30,11 +31,16 @@ func newApp(w *app.Window, c *hueController.Controller) *App {
 			buttonOn:     new(widget.Clickable),
 			buttonOff:    new(widget.Clickable),
 			buttonToggle: new(widget.Clickable),
+			reachableIB:  new(widget.Clickable),
 			float:        new(widget.Float),
 			list: &layout.List{
 				Axis: layout.Vertical,
 			},
 		},
 	}
+	a.ui.reachableIconMap = make(map[bool]*widget.Icon)
+	a.ui.reachableIconMap[true], _ = widget.NewIcon(icons.DeviceSignalWiFi4Bar)
+	a.ui.reachableIconMap[false], _ = widget.NewIcon(icons.DeviceSignalWiFiOff)
+	// ^ tbdL override icon color?
 	return a
 }

@@ -9,4 +9,5 @@ require (
 	github.com/pkg/browser v0.0.0-20201112035734-206646e67786
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/viper v1.7.1
+	golang.org/x/exp v0.0.0-20191030013958-a1ab85dbe136
 )
