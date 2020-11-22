@@ -15,7 +15,7 @@ jobs:
 
       - name: Install GUI build dependencies
         # https://gioui.org/doc/install#linux
-        run: apt update && apt-get install -y make gcc pkg-config libx11-dev libx11-xcb-dev libxkbcommon-x11-dev libgles2-mesa-dev libegl1-mesa-dev libffi-dev
+        run: sudo apt-get update && sudo apt-get install -y make gcc pkg-config libx11-dev libx11-xcb-dev libxkbcommon-x11-dev libgles2-mesa-dev libegl1-mesa-dev libffi-dev
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
@@ -30,6 +30,7 @@ jobs:
 
       - name: Create Release
         # todo: goreleaser would be cool, but CGO meh
+        # https://github.com/actions/upload-release-asset
         id: create_release
         uses: actions/create-release@v1
         if: startsWith(github.ref, 'refs/tags/')
