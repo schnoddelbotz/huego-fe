@@ -7,6 +7,8 @@ A cross-platform CLI, GUI and Web - frontend for Philips Hue bridges, based on [
 
 `huego-fe` focuses on basic lights operations (on, off, brightness, ... more to come potentially).
 
+![](./screenshots/huego-fe-gui-linux.png)
+
 ## CLI usage
 
 ```bash
