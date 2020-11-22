@@ -49,7 +49,7 @@ func (a *App) cycleLight(op int8) error {
 }
 
 func (a *App) selectLightByID(lightID int) error {
-	newLight, err := a.ctrl.LightById(lightID)
+	newLight, err := a.ctrl.LightByID(lightID)
 	if err != nil {
 		return nil
 	}

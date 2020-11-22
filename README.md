@@ -1,4 +1,5 @@
 [![build](https://github.com/schnoddelbotz/huego-fe/workflows/build/badge.svg)](https://github.com/schnoddelbotz/huego-fe/actions?query=workflow%3Abuild)
+[![goreportcard](https://goreportcard.com/badge/github.com/schnoddelbotz/huego-fe)](https://goreportcard.com/report/github.com/schnoddelbotz/huego-fe)
 
 # huego-fe
 
@@ -105,12 +106,19 @@ of your default lamp. To toggle a specific lamp, just append `-l <lamp_id>` (use
 
 # todo
 
+- hue light group control
+- enable toggling between single-light and group control mode; pref: default mode
+- getting/setting colors, see
+  - https://github.com/lucasb-eyer/go-colorful/issues/35
+  - https://stackoverflow.com/questions/22564187/rgb-to-philips-hue-hsb
 - enable cobra shell auto-completion on commands / lights
 - add a cmd/install_linux.go that permits simple installation of systemd socket-activated `huego-fe serve`?
 - use index.tpl.html for link process, too
+- add `huego-fe schedule` to easily manage systemd timers / mac launchd / MS ScheduledTask?
 - numeric lamp id vs name ... usage issues? id stability?
 - split gui and cli/web binaries? build time for CLI/web only usage concerns + mousetrap breaks cli on win 
 - TODOs/FIXMEs in code...
+- github action: add release builds; open: goreleaser vs cgo / how-to 
 
 # kudos to ...
 

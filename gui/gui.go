@@ -10,6 +10,7 @@ import (
 	"gioui.org/widget/material"
 )
 
+// UI holds huego-fe GUI instance UI components
 type UI struct {
 	buttonOn         *widget.Clickable
 	buttonOff        *widget.Clickable
@@ -28,7 +29,9 @@ var (
 )
 
 type (
+	// D is used as shorthand for layout.Dimensions in layout functions below
 	D = layout.Dimensions
+	// C is used as shorthand for layout.Context in layout functions below
 	C = layout.Context
 )
 

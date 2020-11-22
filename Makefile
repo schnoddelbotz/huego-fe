@@ -45,6 +45,9 @@ web/assets.go: $(ASSETS)
 fmt:
 	go fmt ./...
 
+lint:
+	golint ./...
+
 test: web/assets.go
 	go test ./...
 

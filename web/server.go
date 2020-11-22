@@ -13,11 +13,11 @@ import (
 
 	"github.com/amimof/huego"
 
-	"github.com/schnoddelbotz/huego-fe/hueController"
+	"github.com/schnoddelbotz/huego-fe/huecontroller"
 )
 
 type server struct {
-	hc      *hueController.Controller
+	hc      *huecontroller.Controller
 	Port    string
 	Version string
 }
@@ -36,12 +36,16 @@ type indexTemplateData struct {
 }
 
 const (
+	// PowerOn string as used in URLs
 	PowerOn    = "PowerOn"
+	// PowerOff string as used in URLs
 	PowerOff   = "PowerOff"
+	// Brightness string as used in URLs
 	Brightness = "Brightness"
 )
 
-func Serve(port string, hc *hueController.Controller, huegofeVersion string) error {
+// Serve starts the huego-fe web server on the given port, to enable light control via browser
+func Serve(port string, hc *huecontroller.Controller, huegofeVersion string) error {
 	srv := &server{hc: hc, Port: port, Version: huegofeVersion}
 	log.Printf("Starting huego-fe %s webserver for Controlling Hue: %s", huegofeVersion, hc.IP())
 	log.Printf("Listening on %s ( visit http://localhost:%s/ )", huegofeVersion, port)

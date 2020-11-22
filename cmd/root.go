@@ -10,9 +10,10 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/schnoddelbotz/huego-fe/gui"
-	"github.com/schnoddelbotz/huego-fe/hueController"
+	"github.com/schnoddelbotz/huego-fe/huecontroller"
 )
 
+// Version gets populated with huego-fe git tag via ldflags during build
 var Version = "0.0.0-dev"
 var cfgFile string
 
@@ -27,9 +28,9 @@ var rootCmd = &cobra.Command{
 	Short: "huego-fe can control your philips hue stuff",
 	Run: func(cmd *cobra.Command, args []string) {
 		// start UI if huego-fe called w/o args
-		controller := hueController.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
-		lightId := viper.GetInt(flagHueLight)
-		gui.Main(controller, lightId)
+		controller := huecontroller.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
+		lightID := viper.GetInt(flagHueLight)
+		gui.Main(controller, lightID)
 	},
 }
 

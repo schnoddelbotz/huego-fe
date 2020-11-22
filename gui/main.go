@@ -15,7 +15,7 @@ import (
 	"gioui.org/unit"
 	"gioui.org/widget/material"
 
-	"github.com/schnoddelbotz/huego-fe/hueController"
+	"github.com/schnoddelbotz/huego-fe/huecontroller"
 )
 
 const (
@@ -33,7 +33,8 @@ const (
 	cycleLightDown
 )
 
-func Main(ctrl *hueController.Controller, selectLight int) {
+// Main is called by cmd/root.go if huego-fe is invoked without command line arguments
+func Main(ctrl *huecontroller.Controller, selectLight int) {
 	a := newApp(nil, ctrl)
 
 	if ctrl.IsLoggedIn() {

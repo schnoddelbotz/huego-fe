@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/schnoddelbotz/huego-fe/hueController"
+	"github.com/schnoddelbotz/huego-fe/huecontroller"
 )
 
 var listCmd = &cobra.Command{
@@ -16,7 +16,7 @@ var listCmd = &cobra.Command{
 	SilenceErrors: true,
 	SilenceUsage:  true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		controller := hueController.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
+		controller := huecontroller.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
 		if !controller.IsLoggedIn() {
 			return errors.New("missing login data; provide as args/env (see -h) or run huego-fe login")
 		}

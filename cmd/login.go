@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/schnoddelbotz/huego-fe/hueController"
+	"github.com/schnoddelbotz/huego-fe/huecontroller"
 )
 
 var loginCmd = &cobra.Command{
@@ -15,7 +15,7 @@ var loginCmd = &cobra.Command{
 	SilenceUsage:  true,
 	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		ctrl := hueController.New("", "")
+		ctrl := huecontroller.New("", "")
 		err := ctrl.Login()
 		if err != nil {
 			return err

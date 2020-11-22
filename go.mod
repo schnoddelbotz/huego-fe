@@ -10,4 +10,6 @@ require (
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/viper v1.7.1
 	golang.org/x/exp v0.0.0-20191030013958-a1ab85dbe136
+	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
+	golang.org/x/tools v0.0.0-20201121010211-780cb80bd7fb // indirect
 )

@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/schnoddelbotz/huego-fe/hueController"
+	"github.com/schnoddelbotz/huego-fe/huecontroller"
 )
 
 var toggleCmd = &cobra.Command{
@@ -19,12 +19,12 @@ var toggleCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// TODO: should accept numeric lamp ID from List() ... or look up by name! Order changes...
 		fmt.Printf("Toggling light %d ...\n", viper.GetInt(flagHueLight))
-		controller := hueController.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
+		controller := huecontroller.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
 		if !controller.IsLoggedIn() {
 			return errors.New("missing login data; provide as args/env (see -h) or run huego-fe login")
 		}
 		lightID := viper.GetInt(flagHueLight)
-		l, err := controller.LightById(lightID)
+		l, err := controller.LightByID(lightID)
 		if err != nil {
 			return err
 		}

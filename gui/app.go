@@ -7,13 +7,14 @@ import (
 	"github.com/amimof/huego"
 	"golang.org/x/exp/shiny/materialdesign/icons"
 
-	"github.com/schnoddelbotz/huego-fe/hueController"
+	"github.com/schnoddelbotz/huego-fe/huecontroller"
 )
 
+// App holds a huego-fe GUI instance's state and provides channels for decoupled UI->hueCtrl communication.
 type App struct {
 	w    *app.Window
 	ui   *UI
-	ctrl *hueController.Controller
+	ctrl *huecontroller.Controller
 
 	selectedLight *huego.Light
 	briChan       chan uint8
@@ -21,7 +22,7 @@ type App struct {
 	loggedIn      bool
 }
 
-func newApp(w *app.Window, c *hueController.Controller) *App {
+func newApp(w *app.Window, c *huecontroller.Controller) *App {
 	a := &App{
 		w:       w,
 		ctrl:    c,
