@@ -24,7 +24,6 @@ func New(ip string, user string) *Controller {
 	}
 }
 
-
 // SavePrefs calls viper.SafeWriteConfig() to write (successful) login data to ~/.huego-fe.yml for later use.
 func (ctrl *Controller) SavePrefs() error {
 	const flagHueUser = "hue-user" // UGLY! copy pasta from cmd/root.go -- share elsewhere
@@ -91,11 +90,11 @@ func (ctrl *Controller) List() {
 		if n > 0 {
 			println()
 		}
-		fmt.Printf(listFormat,"ID", light.ID)
-		fmt.Printf(listFormat,"Name", light.Name)
-		fmt.Printf(listFormat,"ModelID", light.ModelID)
-		fmt.Printf(listFormat,"ManufacturerName", light.ManufacturerName)
-		fmt.Printf(listFormat,"Type", light.Type)
+		fmt.Printf(listFormat, "ID", light.ID)
+		fmt.Printf(listFormat, "Name", light.Name)
+		fmt.Printf(listFormat, "ModelID", light.ModelID)
+		fmt.Printf(listFormat, "ManufacturerName", light.ManufacturerName)
+		fmt.Printf(listFormat, "Type", light.Type)
 		fmt.Printf(listFormat, "ColorMode", light.State.ColorMode) // ct ColorTemp xy Color
 		fmt.Printf(listFormat, "Reachable", light.State.Reachable)
 		fmt.Printf(listFormat, "PoweredOn", light.State.On)

@@ -37,9 +37,9 @@ type indexTemplateData struct {
 
 const (
 	// PowerOn string as used in URLs
-	PowerOn    = "PowerOn"
+	PowerOn = "PowerOn"
 	// PowerOff string as used in URLs
-	PowerOff   = "PowerOff"
+	PowerOff = "PowerOff"
 	// Brightness string as used in URLs
 	Brightness = "Brightness"
 )

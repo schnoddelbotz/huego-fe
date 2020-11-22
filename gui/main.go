@@ -193,7 +193,7 @@ func getSliderValueFor(action int, current float32, modifiers key.Modifiers) flo
 	} else if modifiers.Contain(key.ModAlt) {
 		change = floatMaxVal // to jump min/max
 	}
-	newValue := current
+	var newValue float32
 	if action == actionIncrease {
 		newValue = current + change
 		if newValue > floatMaxVal {

@@ -39,7 +39,6 @@ $(BINARY).exe:
 
 web/assets.go: $(ASSETS)
 	# building web/assets.go to embed web assets into huego-fe binary
-	test -n "$(shell which esc)" || go get -v -u github.com/mjibson/esc
 	go generate
 
 fmt:
@@ -48,9 +47,15 @@ fmt:
 lint:
 	golint ./...
 
+ineffassign:
+	ineffassign .
+
 test: web/assets.go
 	go test ./...
 
 clean:
 	rm -f $(BINARY) $(BINARY).exe
 
+git-setup:
+	/bin/echo -e '#!/bin/sh\nmake fmt' > .git/hooks/pre-commit
+	/bin/echo -e '#!/bin/sh\nmake lint ineffassign test' > .git/hooks/pre-push
