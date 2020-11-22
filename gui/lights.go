@@ -6,17 +6,13 @@ func (a *App) handlePowerActions() {
 	for newState := range a.pwrChan {
 		switch newState {
 		case powerOff:
-			a.powerState = powerOff
 			a.selectedLight.Off()
 		case powerOn:
-			a.powerState = powerOn
 			a.selectedLight.On()
 		case powerToggle:
 			if a.selectedLight.State.On {
-				a.powerState = powerOff
 				a.selectedLight.Off()
 			} else {
-				a.powerState = powerOn
 				a.selectedLight.On()
 			}
 		}
@@ -25,7 +21,6 @@ func (a *App) handlePowerActions() {
 
 func (a *App) handleBrightnessAction() {
 	for newBrightness := range a.briChan {
-		a.powerState = powerOn
 		a.selectedLight.Bri(newBrightness)
 	}
 }
@@ -59,13 +54,10 @@ func (a *App) selectLightByID(lightID int) error {
 		return nil
 	}
 	a.selectedLight = newLight
-	a.topLabel = a.selectedLight.Name
 	a.ui.float.Value = float32(a.selectedLight.State.Bri)
-	a.powerState = powerOff
-	if a.selectedLight.State.On {
-		a.powerState = powerOn
+	if a.w != nil {
+		a.w.Invalidate()
 	}
-	a.w.Invalidate()
 	return nil
 }
 

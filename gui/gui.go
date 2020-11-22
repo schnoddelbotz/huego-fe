@@ -19,8 +19,10 @@ type UI struct {
 }
 
 var (
-	colorBtnDisabled = color.NRGBA{A: 0x77}
-	colorBtnEnabled  = color.NRGBA{A: 0xcc}
+	btnColorMap = map[bool]color.NRGBA{
+		true:  {A: 0xcc},
+		false: {A: 0x55},
+	}
 )
 
 type (
@@ -28,14 +30,10 @@ type (
 	C = layout.Context
 )
 
-func (a *App) kitchen(gtx layout.Context, th *material.Theme) layout.Dimensions {
+func (a *App) controlPanel(gtx layout.Context, th *material.Theme) layout.Dimensions {
 	widgets := []layout.Widget{
-		material.H6(th, a.topLabel).Layout,
+		material.Label(th, unit.Dp(20), a.selectedLight.Name).Layout,
 		func(gtx C) D {
-			if !a.loggedIn {
-				// ugliest way to do it here?
-				return layout.Dimensions{}
-			}
 			return layout.Flex{Alignment: layout.Middle}.Layout(gtx,
 				// todo: make slider gray/disabled if lamp is powerd off
 				layout.Flexed(1, material.Slider(th, a.ui.float, 0, 255).Layout),
@@ -47,10 +45,6 @@ func (a *App) kitchen(gtx layout.Context, th *material.Theme) layout.Dimensions 
 			)
 		},
 		func(gtx C) D {
-			if !a.loggedIn {
-				// ...again!
-				return layout.Dimensions{}
-			}
 			in := layout.UniformInset(unit.Dp(8))
 			return layout.Flex{Alignment: layout.Middle}.Layout(gtx,
 				layout.Rigid(func(gtx C) D {
@@ -59,11 +53,7 @@ func (a *App) kitchen(gtx layout.Context, th *material.Theme) layout.Dimensions 
 							a.pwrChan <- powerOff
 						}
 						btn := material.Button(th, a.ui.buttonOff, "Off")
-						if a.powerState == powerOff {
-							btn.Background = colorBtnDisabled
-						} else if a.powerState == powerOn {
-							btn.Background = colorBtnEnabled
-						}
+						btn.Background = btnColorMap[a.selectedLight.State.On]
 						return btn.Layout(gtx)
 					})
 				}),
@@ -73,11 +63,7 @@ func (a *App) kitchen(gtx layout.Context, th *material.Theme) layout.Dimensions 
 							a.pwrChan <- powerOn
 						}
 						btn := material.Button(th, a.ui.buttonOn, "On")
-						if a.powerState == powerOff {
-							btn.Background = colorBtnEnabled
-						} else if a.powerState == powerOn {
-							btn.Background = colorBtnDisabled
-						}
+						btn.Background = btnColorMap[!a.selectedLight.State.On]
 						return btn.Layout(gtx)
 					})
 				}),
@@ -87,11 +73,11 @@ func (a *App) kitchen(gtx layout.Context, th *material.Theme) layout.Dimensions 
 							a.pwrChan <- powerToggle
 						}
 						buttonText := "Toggle on"
-						if a.powerState == powerOn {
+						if a.selectedLight.State.On {
 							buttonText = "Toggle off"
 						}
 						btn := material.Button(th, a.ui.buttonToggle, buttonText)
-						btn.Background = colorBtnEnabled
+						btn.Background = btnColorMap[true]
 						return btn.Layout(gtx)
 					})
 				}),
@@ -99,6 +85,15 @@ func (a *App) kitchen(gtx layout.Context, th *material.Theme) layout.Dimensions 
 		},
 	}
 	return a.ui.list.Layout(gtx, len(widgets), func(gtx C, i int) D {
-		return layout.UniformInset(unit.Dp(16)).Layout(gtx, widgets[i])
+		return layout.UniformInset(unit.Dp(10)).Layout(gtx, widgets[i])
+	})
+}
+
+func (a *App) pairingRequiredScreen(gtx layout.Context, th *material.Theme) layout.Dimensions {
+	widgets := []layout.Widget{
+		material.Label(th, unit.Dp(20), "Please press Hue's link button").Layout,
+	}
+	return a.ui.list.Layout(gtx, len(widgets), func(gtx C, i int) D {
+		return layout.UniformInset(unit.Dp(10)).Layout(gtx, widgets[i])
 	})
 }

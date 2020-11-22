@@ -33,27 +33,17 @@ const (
 	cycleLightDown
 )
 
-func Main(ctrl *hueController.Controller, appVersion string, selectLight int) {
+func Main(ctrl *hueController.Controller, selectLight int) {
 	a := newApp(nil, ctrl)
-	a.topLabel = "huego-fe " + appVersion
 
 	if ctrl.IsLoggedIn() {
 		a.loggedIn = true
-		light, err := ctrl.LightById(selectLight)
+		err := a.selectLightByID(selectLight)
 		if err != nil {
-			log.Fatal(err)
+			// todo: feedback via gui
+			log.Fatalf("unable to select light %d", selectLight)
 		}
-		a.selectedLight = light
-		a.topLabel = a.selectedLight.Name
-		if a.selectedLight.State.Reachable {
-			a.powerState = powerOff
-			if a.selectedLight.State.On {
-				a.powerState = powerOn
-			}
-		}
-		a.ui.float.Value = float32(a.selectedLight.State.Bri)
 	} else {
-		a.topLabel = "Please press Hue's link button"
 		go a.login()
 	}
 
@@ -151,8 +141,10 @@ func (a *App) loop() error {
 						// log.Printf("user moved slider using mouse to: %f", float.Value)
 						a.briChan <- uint8(a.ui.float.Value)
 					}
+					a.controlPanel(gtx, th)
+				} else {
+					a.pairingRequiredScreen(gtx, th)
 				}
-				a.kitchen(gtx, th)
 				e.Frame(gtx.Ops)
 			}
 		}
@@ -187,7 +179,7 @@ func (a *App) login() {
 			return
 		}
 		log.Printf("still no pairing success, sleeping 2 seconds ...")
-		time.Sleep(2*time.Second)
+		time.Sleep(2 * time.Second)
 	}
 }
 

@@ -18,8 +18,6 @@ type App struct {
 	briChan       chan uint8
 	pwrChan       chan uint8
 	loggedIn      bool
-	topLabel      string
-	powerState    uint8
 }
 
 func newApp(w *app.Window, c *hueController.Controller) *App {

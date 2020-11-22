@@ -29,7 +29,7 @@ var rootCmd = &cobra.Command{
 		// start UI if huego-fe called w/o args
 		controller := hueController.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
 		lightId := viper.GetInt(flagHueLight)
-		gui.Main(controller, Version, lightId)
+		gui.Main(controller, lightId)
 	},
 }
 
