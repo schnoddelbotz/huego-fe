@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"runtime"
 
 	"github.com/spf13/cobra"
 )
@@ -13,7 +14,7 @@ var versionCmd = &cobra.Command{
 	SilenceErrors: true,
 	SilenceUsage:  true,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("This is huego-fe, version %s\n", Version)
+		fmt.Printf("This is huego-fe, version %s (%s)\n", Version, runtime.Version())
 		fmt.Println("Visit https://github.com/schnoddelbotz/huego-fe for more information.")
 	},
 }
