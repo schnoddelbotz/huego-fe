@@ -19,10 +19,10 @@ import (
 )
 
 const (
-	actionDecrease               = 0
-	actionIncrease               = 1
-	floatMinVal          float32 = 1.0
-	floatMaxVal          float32 = 255.0
+	actionDecrease = 0
+	actionIncrease = 1
+	//floatMinVal          float32 = 1.0
+	//floatMaxVal          float32 = 255.0
 	floatDefaultStepSize float32 = 20.0
 	floatCtrlStepSize    float32 = 10.0
 	floatShiftStepSize   float32 = 1.0
@@ -49,10 +49,11 @@ func Main(ctrl *huecontroller.Controller, selectLight int) {
 	}
 
 	go a.handleBrightnessAction()
+	go a.handleColorTempAction()
 	go a.handlePowerActions()
 
 	go func() {
-		w := app.NewWindow(app.Size(unit.Dp(400), unit.Dp(200)), app.Title("huego-fe - Hue Control UI"))
+		w := app.NewWindow(app.Size(unit.Dp(400), unit.Dp(250)), app.Title("huego-fe - Hue Control UI"))
 		a.w = w
 		if err := a.loop(); err != nil {
 			log.Fatal(err)
@@ -87,11 +88,21 @@ func (a *App) loop() error {
 				}
 				switch e.Name {
 				case key.NameRightArrow:
-					a.ui.float.Value = getSliderValueFor(actionIncrease, a.ui.float.Value, e.Modifiers)
-					a.briChan <- uint8(a.ui.float.Value)
+					if e.Modifiers.Contain(key.ModShift) {
+						a.ui.ctFloat.Value = getSliderValueFor(actionIncrease, a.ui.ctFloat.Value, e.Modifiers, 1.0, 500.0)
+						a.ctChan <- uint16(a.ui.ctFloat.Value)
+					} else {
+						a.ui.briFloat.Value = getSliderValueFor(actionIncrease, a.ui.briFloat.Value, e.Modifiers, 1.0, 255.0)
+						a.briChan <- uint8(a.ui.briFloat.Value)
+					}
 				case key.NameLeftArrow:
-					a.ui.float.Value = getSliderValueFor(actionDecrease, a.ui.float.Value, e.Modifiers)
-					a.briChan <- uint8(a.ui.float.Value)
+					if e.Modifiers.Contain(key.ModShift) {
+						a.ui.ctFloat.Value = getSliderValueFor(actionDecrease, a.ui.ctFloat.Value, e.Modifiers, 1.0, 500.0)
+						a.ctChan <- uint16(a.ui.ctFloat.Value)
+					} else {
+						a.ui.briFloat.Value = getSliderValueFor(actionDecrease, a.ui.briFloat.Value, e.Modifiers, 1.0, 255.0)
+						a.briChan <- uint8(a.ui.briFloat.Value)
+					}
 
 				case key.NameUpArrow:
 					a.cycleLight(cycleLightUp)
@@ -138,9 +149,12 @@ func (a *App) loop() error {
 			case system.FrameEvent:
 				gtx := layout.NewContext(&ops, e)
 				if a.loggedIn {
-					for a.ui.float.Changed() {
-						// log.Printf("user moved slider using mouse to: %f", float.Value)
-						a.briChan <- uint8(a.ui.float.Value)
+					for a.ui.briFloat.Changed() {
+						// log.Printf("user moved slider using mouse to: %f", briFloat.Value)
+						a.briChan <- uint8(a.ui.briFloat.Value)
+					}
+					for a.ui.ctFloat.Changed() {
+						a.ctChan <- uint16(a.ui.ctFloat.Value)
 					}
 					a.controlPanel(gtx, th)
 				} else {
@@ -184,25 +198,23 @@ func (a *App) login() {
 	}
 }
 
-func getSliderValueFor(action int, current float32, modifiers key.Modifiers) float32 {
+func getSliderValueFor(action int, current float32, modifiers key.Modifiers, min, max float32) float32 {
 	change := floatDefaultStepSize // 20?
-	if modifiers.Contain(key.ModShift) {
-		change = floatShiftStepSize // 1?
-	} else if modifiers.Contain(key.ModCtrl) {
+	if modifiers.Contain(key.ModCtrl) {
 		change = floatCtrlStepSize // 10?
 	} else if modifiers.Contain(key.ModAlt) {
-		change = floatMaxVal // to jump min/max
+		change = max // to jump min/max
 	}
 	var newValue float32
 	if action == actionIncrease {
 		newValue = current + change
-		if newValue > floatMaxVal {
-			newValue = floatMaxVal
+		if newValue > max {
+			newValue = max
 		}
 	} else {
 		newValue = current - change
-		if newValue < floatMinVal {
-			newValue = floatMinVal
+		if newValue < min {
+			newValue = min
 		}
 	}
 	return newValue

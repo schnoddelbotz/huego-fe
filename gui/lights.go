@@ -25,6 +25,12 @@ func (a *App) handleBrightnessAction() {
 	}
 }
 
+func (a *App) handleColorTempAction() {
+	for newColorTemp := range a.ctChan {
+		a.selectedLight.Ct(newColorTemp)
+	}
+}
+
 func (a *App) cycleLight(op int8) error {
 	lights, err := a.getSortedLampIDs()
 	if err != nil {
@@ -54,7 +60,8 @@ func (a *App) selectLightByID(lightID int) error {
 		return nil
 	}
 	a.selectedLight = newLight
-	a.ui.float.Value = float32(a.selectedLight.State.Bri)
+	a.ui.briFloat.Value = float32(a.selectedLight.State.Bri)
+	a.ui.ctFloat.Value = float32(a.selectedLight.State.Ct)
 	if a.w != nil {
 		a.w.Invalidate()
 	}

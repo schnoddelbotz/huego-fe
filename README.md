@@ -18,7 +18,8 @@ Usage:
   huego-fe [command]
 
 Available Commands:
-  brightness  control gravity
+  brightness  set light brightness
+  colortemp   set light color temperature
   help        Help about any command
   list        A brief description of your command
   login       Discover Hue bridge and log in -- press link button first!
@@ -71,7 +72,7 @@ you should be warped into control UI.
 
 ### GUI
 
-- just run `huego-fe`
+- just run `huego-fe` without any command line arguments to launch GUI.
 
 Keyboard shortcuts:
 
@@ -80,8 +81,8 @@ Keyboard shortcuts:
 | <kbd>⇧</kbd> / <kbd>⇩</kbd>                    | select light                |
 | <kbd>⇦</kbd> / <kbd>⇨</kbd>                    | brightness -/+ 20           |
 | <kbd>Ctrl</kbd> + <kbd>⇦</kbd> / <kbd>⇨</kbd>  | brightness -/+ 10           |
-| <kbd>Shift</kbd> + <kbd>⇦</kbd> / <kbd>⇨</kbd> | brightness -/+ 1            |
 | <kbd>Alt</kbd> + <kbd>⇦</kbd> / <kbd>⇨</kbd>   | brightness jump min/max     |
+| <kbd>Shift</kbd> + <kbd>⇦</kbd> / <kbd>⇨</kbd> | color temperature -/+ 20    |
 | <kbd>PgUp</kbd> / <kbd>Home</kbd>              | power on                    |
 | <kbd>PgDn</kbd> / <kbd>End</kbd>               | power off                   |
 | <kbd>⏎</kbd> / <kbd>Enter</kbd>                | toggle power state          | 

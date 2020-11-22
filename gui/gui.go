@@ -16,7 +16,8 @@ type UI struct {
 	buttonOff        *widget.Clickable
 	buttonToggle     *widget.Clickable
 	reachableIB      *widget.Clickable // fake... just to put (un)reachable icon on it. no click action :/
-	float            *widget.Float
+	briFloat         *widget.Float     // brightness slider
+	ctFloat          *widget.Float     // color temperature slider
 	list             *layout.List
 	reachableIconMap map[bool]*widget.Icon
 }
@@ -56,11 +57,23 @@ func (a *App) controlPanel(gtx layout.Context, th *material.Theme) layout.Dimens
 		func(gtx C) D {
 			return layout.Flex{Alignment: layout.Middle}.Layout(gtx,
 				// todo: make slider gray/disabled if lamp is powerd off
-				layout.Flexed(0.5, material.Label(th, unit.Dp(14), "  Brightness").Layout),
-				layout.Flexed(1, material.Slider(th, a.ui.float, 0, 255).Layout),
+				layout.Flexed(0.3, material.Label(th, unit.Dp(14), "  Brightness").Layout),
+				layout.Flexed(1, material.Slider(th, a.ui.briFloat, 0, 255).Layout),
 				layout.Rigid(func(gtx C) D {
-					return layout.UniformInset(unit.Dp(8)).Layout(gtx,
-						material.Body1(th, fmt.Sprintf("%.0f", a.ui.float.Value)).Layout,
+					return layout.UniformInset(unit.Dp(4)).Layout(gtx,
+						material.Body1(th, fmt.Sprintf("%.0f", a.ui.briFloat.Value)).Layout,
+					)
+				}),
+			)
+		},
+		func(gtx C) D {
+			return layout.Flex{Alignment: layout.Middle}.Layout(gtx,
+				// todo: make slider gray/disabled if lamp is powerd off
+				layout.Flexed(0.3, material.Label(th, unit.Dp(14), "  ColorTemp").Layout),
+				layout.Flexed(1, material.Slider(th, a.ui.ctFloat, 0, 500).Layout),
+				layout.Rigid(func(gtx C) D {
+					return layout.UniformInset(unit.Dp(4)).Layout(gtx,
+						material.Body1(th, fmt.Sprintf("%.0f", a.ui.ctFloat.Value)).Layout,
 					)
 				}),
 			)

@@ -18,6 +18,7 @@ type App struct {
 
 	selectedLight *huego.Light
 	briChan       chan uint8
+	ctChan        chan uint16
 	pwrChan       chan uint8
 	loggedIn      bool
 }
@@ -27,13 +28,15 @@ func newApp(w *app.Window, c *huecontroller.Controller) *App {
 		w:       w,
 		ctrl:    c,
 		briChan: make(chan uint8, 100),
+		ctChan:  make(chan uint16, 100),
 		pwrChan: make(chan uint8, 100),
 		ui: &UI{
 			buttonOn:     new(widget.Clickable),
 			buttonOff:    new(widget.Clickable),
 			buttonToggle: new(widget.Clickable),
 			reachableIB:  new(widget.Clickable),
-			float:        new(widget.Float),
+			briFloat:     new(widget.Float),
+			ctFloat:      new(widget.Float),
 			list: &layout.List{
 				Axis: layout.Vertical,
 			},

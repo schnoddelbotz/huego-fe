@@ -162,4 +162,13 @@ func (ctrl *Controller) SetBrightness(lightID int, brightness uint8) error {
 	return light.Bri(brightness)
 }
 
+// SetBrightness controls brightness on given lightID
+func (ctrl *Controller) SetColorTemperature(lightID int, colorTemperature uint16) error {
+	light, err := ctrl.bridge.GetLight(lightID)
+	if err != nil {
+		return err
+	}
+	return light.Ct(colorTemperature)
+}
+
 // SetColor / Temp ...
