@@ -59,3 +59,4 @@ clean:
 git-setup:
 	/bin/echo -e '#!/bin/sh\nmake fmt' > .git/hooks/pre-commit
 	/bin/echo -e '#!/bin/sh\nmake lint ineffassign test' > .git/hooks/pre-push
+	chmod +x .git/hooks/pre-commit .git/hooks/pre-push
