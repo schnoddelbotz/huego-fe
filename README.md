@@ -1,3 +1,5 @@
+[![build](https://github.com/schnoddelbotz/huego-fe/workflows/build/badge.svg)](https://github.com/schnoddelbotz/huego-fe/actions?query=workflow%3Abuild)
+
 # huego-fe
 
 A cross-platform CLI, GUI and Web - frontend for Philips Hue bridges, based on [huego](https://github.com/amimof/huego).

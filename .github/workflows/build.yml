@@ -1,0 +1,45 @@
+name: build
+
+on: [push]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install GUI build dependencies
+        # https://gioui.org/doc/install#linux
+        run: apt update && apt-get install -y make gcc pkg-config libx11-dev libx11-xcb-dev libxkbcommon-x11-dev libgles2-mesa-dev libegl1-mesa-dev libffi-dev
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+
+      - name: Run tests
+        run: make test
+      - name: Build binary (X11)
+        run: make huego-fe LINUX_DISPLAY=X11 VERSION=${GITHUB_SHA::8}
+      - name: Dump version built
+        run: ./huego-fe version
+
+      - name: Create Release
+        # todo: goreleaser would be cool, but CGO meh
+        id: create_release
+        uses: actions/create-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release
+            - ...
+          draft: false
+          prerelease: false
