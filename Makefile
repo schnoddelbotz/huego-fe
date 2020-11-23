@@ -52,7 +52,7 @@ ineffassign:
 	ineffassign .
 
 test: web/assets.go
-	go test -v -covermode=count -coverprofile=$(COVERAGE_PROFILE) ./...
+	go test -race -covermode atomic -coverprofile=$(COVERAGE_PROFILE) ./...
 
 clean:
 	rm -f $(BINARY) $(BINARY).exe $(COVERAGE_PROFILE)
