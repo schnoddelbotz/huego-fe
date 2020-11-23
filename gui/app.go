@@ -34,7 +34,6 @@ func newApp(w *app.Window, c *huecontroller.Controller) *App {
 			buttonOn:     new(widget.Clickable),
 			buttonOff:    new(widget.Clickable),
 			buttonToggle: new(widget.Clickable),
-			reachableIB:  new(widget.Clickable),
 			briFloat:     new(widget.Float),
 			ctFloat:      new(widget.Float),
 			list: &layout.List{

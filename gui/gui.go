@@ -15,9 +15,8 @@ type UI struct {
 	buttonOn         *widget.Clickable
 	buttonOff        *widget.Clickable
 	buttonToggle     *widget.Clickable
-	reachableIB      *widget.Clickable // fake... just to put (un)reachable icon on it. no click action :/
-	briFloat         *widget.Float     // brightness slider
-	ctFloat          *widget.Float     // color temperature slider
+	briFloat         *widget.Float // brightness slider
+	ctFloat          *widget.Float // color temperature slider
 	list             *layout.List
 	reachableIconMap map[bool]*widget.Icon
 }
@@ -26,6 +25,10 @@ var (
 	btnColorMap = map[bool]color.NRGBA{
 		true:  {A: 0xcc},
 		false: {A: 0x55},
+	}
+	reachableColorMap = map[bool]color.NRGBA{
+		true:  {A: 100},
+		false: {R: 225, A: 0xcc},
 	}
 )
 
@@ -46,11 +49,11 @@ func (a *App) controlPanel(gtx layout.Context, th *material.Theme) layout.Dimens
 					)
 				}),
 				layout.Rigid(func(gtx C) D {
-					return layout.Inset{
-						Top: unit.Dp(10), Right: unit.Dp(10), Bottom: unit.Dp(0), Left: unit.Dp(1),
-					}.Layout(gtx,
-						material.IconButton(th, a.ui.reachableIB, a.ui.reachableIconMap[a.selectedLight.State.Reachable]).Layout,
-					)
+					return layout.UniformInset(unit.Dp(8)).Layout(gtx, func(gtx C) D {
+						icon := a.ui.reachableIconMap[a.selectedLight.State.Reachable]
+						icon.Color = reachableColorMap[a.selectedLight.State.Reachable]
+						return icon.Layout(gtx, unit.Dp(24))
+					})
 				}),
 			)
 		},
