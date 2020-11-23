@@ -18,9 +18,10 @@ var Version = "0.0.0-dev"
 var cfgFile string
 
 const (
-	flagHueUser  = "hue-user"
-	flagHueIP    = "hue-ip"
-	flagHueLight = "hue-light"
+	flagHueUser     = "hue-user"
+	flagHueIP       = "hue-ip"
+	flagHueLight    = "hue-light"
+	flagLightFilter = "light-filter"
 )
 
 var rootCmd = &cobra.Command{
@@ -30,7 +31,8 @@ var rootCmd = &cobra.Command{
 		// start UI if huego-fe called w/o args
 		controller := huecontroller.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
 		lightID := viper.GetInt(flagHueLight)
-		gui.Main(controller, lightID)
+		lightFilter := viper.GetString(flagLightFilter)
+		gui.Main(controller, lightID, lightFilter)
 	},
 }
 
@@ -50,6 +52,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.huego-fe.yaml)")
 	rootCmd.PersistentFlags().StringP(flagHueUser, "u", "", "Hue bridge user/token [$HUE_USER], see: huego-fe login -h")
 	rootCmd.PersistentFlags().StringP(flagHueIP, "i", "", "Hue bridge IP [$HUE_IP] , see: huego-fe login -h")
+	rootCmd.PersistentFlags().StringP(flagLightFilter, "f", "", "exclude lights (provided as comma-separated list of IDs) from UI")
 	rootCmd.PersistentFlags().IntP(flagHueLight, "l", 1, "Hue light No.# [$HUE_LIGHT], see: huego-fe list")
 	// make flags like --hue-ip available to app if HUE_IP in env:
 	replacer := strings.NewReplacer("-", "_")
@@ -58,6 +61,7 @@ func init() {
 	_ = viper.BindPFlag(flagHueUser, rootCmd.PersistentFlags().Lookup(flagHueUser))
 	_ = viper.BindPFlag(flagHueIP, rootCmd.PersistentFlags().Lookup(flagHueIP))
 	_ = viper.BindPFlag(flagHueLight, rootCmd.PersistentFlags().Lookup(flagHueLight))
+	_ = viper.BindPFlag(flagLightFilter, rootCmd.PersistentFlags().Lookup(flagLightFilter))
 }
 
 // initConfig reads in config file and ENV variables if set.

@@ -26,10 +26,6 @@ var (
 		true:  {A: 0xcc},
 		false: {A: 0x55},
 	}
-	reachableColorMap = map[bool]color.NRGBA{
-		true:  {A: 100},
-		false: {R: 225, A: 0xcc},
-	}
 )
 
 type (
@@ -51,7 +47,6 @@ func (a *App) controlPanel(gtx layout.Context, th *material.Theme) layout.Dimens
 				layout.Rigid(func(gtx C) D {
 					return layout.UniformInset(unit.Dp(8)).Layout(gtx, func(gtx C) D {
 						icon := a.ui.reachableIconMap[a.selectedLight.State.Reachable]
-						icon.Color = reachableColorMap[a.selectedLight.State.Reachable]
 						return icon.Layout(gtx, unit.Dp(24))
 					})
 				}),

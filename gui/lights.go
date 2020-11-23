@@ -1,6 +1,8 @@
 package gui
 
-import "sort"
+import (
+	"sort"
+)
 
 func (a *App) handlePowerActions() {
 	for newState := range a.pwrChan {
@@ -70,7 +72,7 @@ func (a *App) selectLightByID(lightID int) error {
 
 func (a *App) getSortedLampIDs() ([]int, error) {
 	var ids []int
-	lights, err := a.ctrl.Lights()
+	lights, err := a.ctrl.LightsFiltered(a.lightFilter)
 	if err != nil {
 		return ids, err
 	}

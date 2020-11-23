@@ -17,9 +17,10 @@ import (
 )
 
 type server struct {
-	hc      *huecontroller.Controller
-	Port    string
-	Version string
+	hc          *huecontroller.Controller
+	Port        string
+	Version     string
+	LightFilter []int
 }
 
 type response struct {
@@ -45,9 +46,21 @@ const (
 )
 
 // Serve starts the huego-fe web server on the given port, to enable light control via browser
-func Serve(port string, hc *huecontroller.Controller, huegofeVersion string) error {
+func Serve(port string, hc *huecontroller.Controller, huegofeVersion string, lightFilter string) error {
 	srv := &server{hc: hc, Port: port, Version: huegofeVersion}
+	if lightFilter != "" {
+		ids := strings.Split(lightFilter, ",")
+		for _, sid := range ids {
+			id, err := strconv.Atoi(sid)
+			if err == nil {
+				srv.LightFilter = append(srv.LightFilter, id)
+			}
+		}
+	}
 	log.Printf("Starting huego-fe %s webserver for Controlling Hue: %s", huegofeVersion, hc.IP())
+	if len(srv.LightFilter) > 0 {
+		log.Printf("Applying --light-filter to only show lights: %v", srv.LightFilter)
+	}
 	log.Printf("Listening on %s ( visit http://localhost:%s/ )", huegofeVersion, port)
 	return http.ListenAndServe(port, accessLogHandler(serveMux(srv)))
 }
@@ -103,11 +116,12 @@ func (s *server) indexHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login?attempt=0", http.StatusFound)
 		return
 	}
-	lights, err := s.hc.Lights()
+	lights, err := s.hc.LightsFiltered(s.LightFilter)
 	if err != nil {
 		w.WriteHeader(500)
 		_, _ = w.Write([]byte(err.Error()))
 	}
+
 	templateData := indexTemplateData{
 		HueIP:   s.hc.IP(),
 		Lights:  lights,

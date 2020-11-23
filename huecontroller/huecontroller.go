@@ -64,6 +64,22 @@ func (ctrl *Controller) Lights() ([]huego.Light, error) {
 	return ctrl.bridge.GetLights()
 }
 
+// LightsFiltered calls huego.bridge.GetLights() and drops any lights contained in lightFilter, before returning.
+func (ctrl *Controller) LightsFiltered(lightFilter []int) ([]huego.Light, error) {
+	var result []huego.Light
+	lights, err := ctrl.bridge.GetLights()
+	if err != nil {
+		return nil, err
+	}
+	for _, light := range lights {
+		if getSliceIndex(lightFilter, light.ID) > -1 {
+			continue
+		}
+		result = append(result, light)
+	}
+	return result, nil
+}
+
 // LightByID returns *huego.Light on success, raises error otherwise
 func (ctrl *Controller) LightByID(id int) (*huego.Light, error) {
 	lights, err := ctrl.bridge.GetLights()
@@ -162,7 +178,7 @@ func (ctrl *Controller) SetBrightness(lightID int, brightness uint8) error {
 	return light.Bri(brightness)
 }
 
-// SetBrightness controls brightness on given lightID
+// SetColorTemperature controls color temperature on given lightID
 func (ctrl *Controller) SetColorTemperature(lightID int, colorTemperature uint16) error {
 	light, err := ctrl.bridge.GetLight(lightID)
 	if err != nil {
@@ -172,3 +188,13 @@ func (ctrl *Controller) SetColorTemperature(lightID int, colorTemperature uint16
 }
 
 // SetColor / Temp ...
+
+// dup! -> util!
+func getSliceIndex(haystack []int, needle int) int {
+	for index, val := range haystack {
+		if val == needle {
+			return index
+		}
+	}
+	return -1
+}

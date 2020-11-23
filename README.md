@@ -38,6 +38,7 @@ Flags:
   -i, --hue-ip string     Hue bridge IP [$HUE_IP] , see: huego-fe login -h
   -l, --hue-light int     Hue light No.# [$HUE_LIGHT], see: huego-fe list (default 1)
   -u, --hue-user string   Hue bridge user/token [$HUE_USER], see: huego-fe login -h
+  -f, --light-filter string   filter lights shown to comma-separated list of IDs
 
 Use "huego-fe [command] --help" for more information about a command.
 
@@ -70,8 +71,13 @@ you should be warped into control UI.
 ### CLI
 
 - Press Hue's link button to enable login
-- Run `huego-fe login` once
-- Try `huego-fe list; huego-fe on; huego-fe b 64; huego-fe 0` etc.
+- Now run `huego-fe login` within a few seconds
+- Try ...
+  - `cat ~/.huego-fe.yml` to check generated config
+  - `huego-fe list` to dump lights/groups including IDs to console
+  - `huego-fe on` to power up the default lamp
+  - `huego-fe b 64 -l 6` -- add `-l ...` to override default light; e.g. here: to set brightness of light 6 to 64
+  - `huego-fe t` toggles the default light
 
 ### GUI
 
@@ -93,11 +99,13 @@ Keyboard shortcuts:
 | <kbd>ESC</kbd>                                 | quit                        |
 
 To override GUI startup default light (as read from `~/.huego-fe.yml`), use `-l` command line flag.
+By putting e.g. `light-filter: "2,3,4,5"` into `~/.huego-fe.yml`, lights with given IDs will be hidden from UI.
 
 #### Desktop integration
 
 It might be handy to assign a Keyboard shortcut to start `huego-fe` GUI for regular use. 
-Example setup for Gnome / Ubuntu 20.04:
+
+##### Example setup for Gnome / Ubuntu 20.04:
 
 - Go to settings > Keyboard shortcuts, scroll to bottom, hit `+`
 - Given you put `huego-fe` into `$PATH` during installation, just use `huego-fe` here as Name and Command
@@ -106,7 +114,7 @@ Example setup for Gnome / Ubuntu 20.04:
 Pressing Ctrl-F12 will now bring up `huego-fe` with default `hue-light` as set in `~/.huego-fe.yml`!
 
 You may want to additionally assign `huego-fe toggle` (to e.g. Ctrl-Shift-F12), permitting direct toggling
-of your default lamp. To toggle a specific lamp, just append `-l <lamp_id>` (use `huego-fe list` to get IDs).
+of your default lamp. See CLI usage above.
 
 # todo
 
@@ -119,7 +127,6 @@ of your default lamp. To toggle a specific lamp, just append `-l <lamp_id>` (use
 - add a cmd/install_linux.go that permits simple installation of systemd socket-activated `huego-fe serve`?
 - use index.tpl.html for link process, too
 - add `huego-fe schedule` to easily manage systemd timers / mac launchd / MS ScheduledTask?
-- numeric lamp id vs name ... usage issues? id stability?
 - split gui and cli/web binaries? build time for CLI/web only usage concerns + mousetrap breaks cli on win 
 - TODOs/FIXMEs in code...
 - github action: add release builds; open: goreleaser vs cgo / how-to 

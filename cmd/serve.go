@@ -35,7 +35,7 @@ var serveCmd = &cobra.Command{
 				}
 			}()
 		}
-		return web.Serve(viper.GetString(flagHTTPPort), controller, Version)
+		return web.Serve(viper.GetString(flagHTTPPort), controller, Version, viper.GetString(flagLightFilter))
 	},
 }
 

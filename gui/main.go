@@ -34,8 +34,8 @@ const (
 )
 
 // Main is called by cmd/root.go if huego-fe is invoked without command line arguments
-func Main(ctrl *huecontroller.Controller, selectLight int) {
-	a := newApp(nil, ctrl)
+func Main(ctrl *huecontroller.Controller, selectLight int, lightFilter string) {
+	a := newApp(nil, ctrl, lightFilter)
 
 	if ctrl.IsLoggedIn() {
 		a.loggedIn = true
