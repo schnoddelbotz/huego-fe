@@ -51,13 +51,18 @@ lint:
 ineffassign:
 	ineffassign .
 
+vet:
+	go vet .
+
 test: web/assets.go
 	go test -race -covermode atomic -coverprofile=$(COVERAGE_PROFILE) ./...
+
+test_all: lint ineffassign vet test
 
 clean:
 	rm -f $(BINARY) $(BINARY).exe $(COVERAGE_PROFILE)
 
 git-setup:
-	/bin/echo -e '#!/bin/sh\nmake fmt' > .git/hooks/pre-commit
-	/bin/echo -e '#!/bin/sh\nmake lint ineffassign test' > .git/hooks/pre-push
+	/bin/echo -e '#!/bin/sh\nexec make fmt' > .git/hooks/pre-commit
+	/bin/echo -e '#!/bin/sh\nexec make test_all' > .git/hooks/pre-push
 	chmod +x .git/hooks/pre-commit .git/hooks/pre-push
