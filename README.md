@@ -1,5 +1,6 @@
 [![build](https://github.com/schnoddelbotz/huego-fe/workflows/build/badge.svg)](https://github.com/schnoddelbotz/huego-fe/actions?query=workflow%3Abuild)
 [![goreportcard](https://goreportcard.com/badge/github.com/schnoddelbotz/huego-fe)](https://goreportcard.com/report/github.com/schnoddelbotz/huego-fe)
+[![Coverage Status](https://coveralls.io/repos/github/schnoddelbotz/huego-fe/badge.svg?branch=main)](https://coveralls.io/github/schnoddelbotz/huego-fe?branch=main)
 
 # huego-fe
 

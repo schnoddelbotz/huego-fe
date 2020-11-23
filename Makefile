@@ -5,6 +5,7 @@ LDFLAGS := -w -s -X github.com/schnoddelbotz/huego-fe/cmd.Version=$(VERSION)
 WIN_LDFLAGS := -H=windowsgui
 ASSETS := $(wildcard assets/*)
 SRC_DEPENDS := main.go */*.go go.* web/assets.go
+COVERAGE_PROFILE := profile.cov
 
 OS := $(shell uname -s)
 # Linux: X11 or Wayland ?
@@ -51,10 +52,10 @@ ineffassign:
 	ineffassign .
 
 test: web/assets.go
-	go test ./...
+	go test -coverprofile=$(COVERAGE_PROFILE) ./...
 
 clean:
-	rm -f $(BINARY) $(BINARY).exe
+	rm -f $(BINARY) $(BINARY).exe $(COVERAGE_PROFILE)
 
 git-setup:
 	/bin/echo -e '#!/bin/sh\nmake fmt' > .git/hooks/pre-commit
