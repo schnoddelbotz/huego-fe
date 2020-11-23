@@ -57,10 +57,16 @@ vet:
 test: web/assets.go
 	go test -race -covermode atomic -coverprofile=$(COVERAGE_PROFILE) ./...
 
+coverage.html: test
+	go tool cover -html=$(COVERAGE_PROFILE) -o coverage.html
+
+coverage: coverage.html
+	$(shell test $(OS) = Linux && echo xdg-open || echo open) coverage.html
+
 test_all: lint ineffassign vet test
 
 clean:
-	rm -f $(BINARY) $(BINARY).exe $(COVERAGE_PROFILE)
+	rm -f $(BINARY) $(BINARY).exe $(COVERAGE_PROFILE) coverage.html
 
 git-setup:
 	/bin/echo -e '#!/bin/sh\nexec make fmt' > .git/hooks/pre-commit
