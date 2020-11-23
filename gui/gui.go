@@ -129,8 +129,16 @@ func (a *App) controlPanel(gtx layout.Context, th *material.Theme) layout.Dimens
 func (a *App) pairingRequiredScreen(gtx layout.Context, th *material.Theme) layout.Dimensions {
 	widgets := []layout.Widget{
 		material.Label(th, unit.Dp(20), "Please press Hue's link button").Layout,
+		func(gtx C) D {
+			return layout.Flex{Alignment: layout.End, Spacing: 2}.Layout(gtx,
+				layout.Flexed(0.2, material.Loader(th).Layout),
+				layout.Flexed(1,
+					material.Label(th, unit.Dp(14), "      press ESC to abort discovery!").Layout,
+				),
+			)
+		},
 	}
 	return a.ui.list.Layout(gtx, len(widgets), func(gtx C, i int) D {
-		return layout.UniformInset(unit.Dp(10)).Layout(gtx, widgets[i])
+		return layout.UniformInset(unit.Dp(25)).Layout(gtx, widgets[i])
 	})
 }

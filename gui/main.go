@@ -178,7 +178,6 @@ func (a *App) login() {
 			if perr != nil {
 				log.Fatalf("pairing success, but unable to save prefs! Error: %s", err)
 			}
-			a.loggedIn = true
 			lights, err := a.getSortedLampIDs()
 			if err != nil {
 				log.Fatalf("error during initial lamp listing: %s", err)
@@ -191,6 +190,7 @@ func (a *App) login() {
 				log.Fatalf("unable to select light: %s", err)
 			}
 			fmt.Printf("login succes!")
+			a.loggedIn = true
 			return
 		}
 		log.Printf("still no pairing success, sleeping 2 seconds ...")
