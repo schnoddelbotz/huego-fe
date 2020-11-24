@@ -49,6 +49,11 @@ func newApp(w *app.Window, c *huecontroller.Controller, lightFilter string) *App
 	a.ui.reachableIconMap = make(map[bool]*widget.Icon)
 	a.ui.reachableIconMap[true], _ = widget.NewIcon(icons.DeviceSignalWiFi4Bar)
 	a.ui.reachableIconMap[false], _ = widget.NewIcon(icons.DeviceSignalWiFiOff)
+	a.ui.controlModeIconMap = make(map[bool]*widget.Icon)
+	a.ui.controlModeIconMap[true], _ = widget.NewIcon(icons.ActionLightbulbOutline)
+	a.ui.controlModeIconMap[false], _ = widget.NewIcon(icons.ActionGroupWork)
+	a.ui.controlModeIconMap[true].Color = color.NRGBA{A: 100}
+	a.ui.controlModeIconMap[false].Color = color.NRGBA{A: 100}
 	// ^ tbdL override icon color?
 	a.ui.reachableIconMap[true].Color = color.NRGBA{A: 100}
 	a.ui.reachableIconMap[false].Color = color.NRGBA{R: 225, A: 0xcc}

@@ -12,13 +12,15 @@ import (
 
 // UI holds huego-fe GUI instance UI components
 type UI struct {
-	buttonOn         *widget.Clickable
-	buttonOff        *widget.Clickable
-	buttonToggle     *widget.Clickable
-	briFloat         *widget.Float // brightness slider
-	ctFloat          *widget.Float // color temperature slider
-	list             *layout.List
-	reachableIconMap map[bool]*widget.Icon
+	buttonOn           *widget.Clickable
+	buttonOff          *widget.Clickable
+	buttonToggle       *widget.Clickable
+	briFloat           *widget.Float // brightness slider
+	ctFloat            *widget.Float // color temperature slider
+	list               *layout.List
+	controlOneLight    bool // .. or a group
+	reachableIconMap   map[bool]*widget.Icon
+	controlModeIconMap map[bool]*widget.Icon
 }
 
 var (
@@ -39,6 +41,11 @@ func (a *App) controlPanel(gtx layout.Context, th *material.Theme) layout.Dimens
 	widgets := []layout.Widget{
 		func(gtx C) D {
 			return layout.Flex{Alignment: layout.Start}.Layout(gtx,
+				layout.Rigid(func(gtx C) D {
+					return layout.UniformInset(unit.Dp(8)).Layout(gtx, func(gtx C) D {
+						return a.ui.controlModeIconMap[a.ui.controlOneLight].Layout(gtx, unit.Dp(24))
+					})
+				}),
 				layout.Flexed(1, func(gtx C) D {
 					return layout.UniformInset(unit.Dp(10)).Layout(gtx,
 						material.Label(th, unit.Dp(20), a.selectedLight.Name).Layout,
@@ -46,8 +53,7 @@ func (a *App) controlPanel(gtx layout.Context, th *material.Theme) layout.Dimens
 				}),
 				layout.Rigid(func(gtx C) D {
 					return layout.UniformInset(unit.Dp(8)).Layout(gtx, func(gtx C) D {
-						icon := a.ui.reachableIconMap[a.selectedLight.State.Reachable]
-						return icon.Layout(gtx, unit.Dp(24))
+						return a.ui.reachableIconMap[a.selectedLight.State.Reachable].Layout(gtx, unit.Dp(24))
 					})
 				}),
 			)

@@ -114,6 +114,9 @@ func (a *App) loop() error {
 				case key.NameHome:
 					a.pwrChan <- powerOn
 
+				case key.NameTab:
+					a.ui.controlOneLight = !a.ui.controlOneLight
+
 				case key.NamePageDown:
 					fallthrough
 				case key.NameEnd:
