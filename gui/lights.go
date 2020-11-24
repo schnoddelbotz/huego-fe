@@ -18,6 +18,7 @@ func (a *App) handlePowerActions() {
 				a.selectedLight.On()
 			}
 		}
+		a.w.Invalidate()
 	}
 }
 
