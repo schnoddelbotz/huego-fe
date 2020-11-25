@@ -21,6 +21,8 @@ const (
 	flagHueUser     = "hue-user"
 	flagHueIP       = "hue-ip"
 	flagHueLight    = "hue-light"
+	flagHueGroup    = "hue-group"
+	flagSingle      = "single-light"
 	flagLightFilter = "light-filter"
 )
 
@@ -30,9 +32,8 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// start UI if huego-fe called w/o args
 		controller := huecontroller.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
-		lightID := viper.GetInt(flagHueLight)
-		lightFilter := viper.GetString(flagLightFilter)
-		gui.Main(controller, lightID, lightFilter)
+		gui.Main(controller, viper.GetInt(flagHueLight), viper.GetInt(flagHueGroup),
+			viper.GetBool(flagSingle), viper.GetString(flagLightFilter))
 	},
 }
 
@@ -54,6 +55,8 @@ func init() {
 	rootCmd.PersistentFlags().StringP(flagHueIP, "i", "", "Hue bridge IP [$HUE_IP] , see: huego-fe login -h")
 	rootCmd.PersistentFlags().StringP(flagLightFilter, "f", "", "exclude lights (provided as comma-separated list of IDs) from UI")
 	rootCmd.PersistentFlags().IntP(flagHueLight, "l", 1, "Hue light No.# [$HUE_LIGHT], see: huego-fe list")
+	rootCmd.PersistentFlags().IntP(flagHueGroup, "g", 1, "Hue group No.# [$HUE_GROUP], see: huego-fe list")
+	rootCmd.PersistentFlags().BoolP(flagSingle, "s", false, "Apply operation on single light, not (default) group")
 	// make flags like --hue-ip available to app if HUE_IP in env:
 	replacer := strings.NewReplacer("-", "_")
 	viper.SetEnvKeyReplacer(replacer)
@@ -61,6 +64,8 @@ func init() {
 	_ = viper.BindPFlag(flagHueUser, rootCmd.PersistentFlags().Lookup(flagHueUser))
 	_ = viper.BindPFlag(flagHueIP, rootCmd.PersistentFlags().Lookup(flagHueIP))
 	_ = viper.BindPFlag(flagHueLight, rootCmd.PersistentFlags().Lookup(flagHueLight))
+	_ = viper.BindPFlag(flagHueGroup, rootCmd.PersistentFlags().Lookup(flagHueGroup))
+	_ = viper.BindPFlag(flagSingle, rootCmd.PersistentFlags().Lookup(flagSingle)) // this is UI, not root cmd. meh.
 	_ = viper.BindPFlag(flagLightFilter, rootCmd.PersistentFlags().Lookup(flagLightFilter))
 }
 

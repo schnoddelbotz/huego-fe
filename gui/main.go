@@ -18,6 +18,9 @@ import (
 	"github.com/schnoddelbotz/huego-fe/huecontroller"
 )
 
+type command int8
+
+// PowerOff etc. are valid commands sent via controlChannel
 const (
 	actionDecrease = 0
 	actionIncrease = 1
@@ -26,20 +29,38 @@ const (
 	floatDefaultStepSize float32 = 20.0
 	floatCtrlStepSize    float32 = 10.0
 	floatShiftStepSize   float32 = 1.0
-	powerOff             uint8   = iota
-	powerOn
-	powerToggle
-	cycleLightUp int8 = iota
-	cycleLightDown
+
+	PowerOff command = iota
+	PowerOn
+	PowerToggle
+	SetBrightness
+	SetColorTemperature
+
+	commandCycle      = 99999 // wtf
+	cycleUp      int8 = iota
+	cycleDown
 )
 
 // Main is called by cmd/root.go if huego-fe is invoked without command line arguments
-func Main(ctrl *huecontroller.Controller, selectLight int, lightFilter string) {
+func Main(ctrl *huecontroller.Controller, selectLight int, selectGroup int, ctrlSingle bool, lightFilter string) {
 	a := newApp(nil, ctrl, lightFilter)
-
 	if ctrl.IsLoggedIn() {
 		a.loggedIn = true
-		err := a.selectLightByID(selectLight)
+		groupIDs, err := a.getSortedGroupIDs()
+		if err != nil {
+			log.Fatalf("Cannot: %s", err)
+		}
+		if ctrlSingle {
+			err = a.selectLightByID(selectLight, true)
+			if selectGroup > 0 {
+				a.selectGroupByID(groupIDs[0], false)
+			}
+		} else {
+			err = a.selectGroupByID(selectGroup, true)
+			if selectLight > 0 {
+				a.selectLightByID(selectLight, false)
+			}
+		}
 		if err != nil {
 			// todo: feedback via gui
 			log.Fatalf("unable to select light %d", selectLight)
@@ -48,9 +69,7 @@ func Main(ctrl *huecontroller.Controller, selectLight int, lightFilter string) {
 		go a.login()
 	}
 
-	go a.handleBrightnessAction()
-	go a.handleColorTempAction()
-	go a.handlePowerActions()
+	go a.handleControlCommands()
 
 	go func() {
 		w := app.NewWindow(app.Size(unit.Dp(400), unit.Dp(250)), app.Title("huego-fe - Hue Control UI"))
@@ -90,29 +109,37 @@ func (a *App) loop() error {
 				case key.NameRightArrow:
 					if e.Modifiers.Contain(key.ModShift) {
 						a.ui.ctFloat.Value = getSliderValueFor(actionIncrease, a.ui.ctFloat.Value, e.Modifiers, 1.0, 500.0)
-						a.ctChan <- uint16(a.ui.ctFloat.Value)
+						a.ctrlChan <- controlCommand{command: SetColorTemperature, targetValue: uint16(a.ui.ctFloat.Value)}
 					} else {
 						a.ui.briFloat.Value = getSliderValueFor(actionIncrease, a.ui.briFloat.Value, e.Modifiers, 1.0, 255.0)
-						a.briChan <- uint8(a.ui.briFloat.Value)
+						a.ctrlChan <- controlCommand{command: SetBrightness, targetValue: uint16(a.ui.briFloat.Value)}
 					}
 				case key.NameLeftArrow:
 					if e.Modifiers.Contain(key.ModShift) {
 						a.ui.ctFloat.Value = getSliderValueFor(actionDecrease, a.ui.ctFloat.Value, e.Modifiers, 1.0, 500.0)
-						a.ctChan <- uint16(a.ui.ctFloat.Value)
+						a.ctrlChan <- controlCommand{command: SetColorTemperature, targetValue: uint16(a.ui.ctFloat.Value)}
 					} else {
 						a.ui.briFloat.Value = getSliderValueFor(actionDecrease, a.ui.briFloat.Value, e.Modifiers, 1.0, 255.0)
-						a.briChan <- uint8(a.ui.briFloat.Value)
+						a.ctrlChan <- controlCommand{command: SetBrightness, targetValue: uint16(a.ui.briFloat.Value)}
 					}
 
 				case key.NameUpArrow:
-					a.cycleLight(cycleLightUp)
+					if a.ui.controlOneLight {
+						a.cycleLight(cycleUp)
+					} else {
+						a.cycleGroup(cycleUp)
+					}
 				case key.NameDownArrow:
-					a.cycleLight(cycleLightDown)
+					if a.ui.controlOneLight {
+						a.cycleLight(cycleDown)
+					} else {
+						a.cycleGroup(cycleDown)
+					}
 
 				case key.NamePageUp:
 					fallthrough
 				case key.NameHome:
-					a.pwrChan <- powerOn
+					a.ctrlChan <- controlCommand{command: PowerOn}
 
 				case key.NameTab:
 					a.ui.controlOneLight = !a.ui.controlOneLight
@@ -120,19 +147,19 @@ func (a *App) loop() error {
 				case key.NamePageDown:
 					fallthrough
 				case key.NameEnd:
-					a.pwrChan <- powerOff
+					a.ctrlChan <- controlCommand{command: PowerOff}
 
 				// TODO: Cleanup (key bindings) -- Confusing!
 				case key.NameReturn:
 					fallthrough
 				case key.NameEnter:
-					a.pwrChan <- powerToggle
+					a.ctrlChan <- controlCommand{command: PowerToggle}
 
 				case "Space": // Mac (+Win?)
 					fallthrough
 				case " ": // Linux
 					//log.Printf("Space pressed - toggling state and saying bye")
-					a.pwrChan <- powerToggle
+					a.ctrlChan <- controlCommand{command: PowerToggle}
 					go func() {
 						// how to wait/ensure command was sent (+successfully?) - wait on feedback chan?
 						time.Sleep(250 * time.Millisecond)
@@ -154,10 +181,16 @@ func (a *App) loop() error {
 				if a.loggedIn {
 					for a.ui.briFloat.Changed() {
 						// log.Printf("user moved slider using mouse to: %f", briFloat.Value)
-						a.briChan <- uint8(a.ui.briFloat.Value)
+						a.ctrlChan <- controlCommand{
+							command:     SetBrightness,
+							targetValue: uint16(a.ui.briFloat.Value),
+						}
 					}
 					for a.ui.ctFloat.Changed() {
-						a.ctChan <- uint16(a.ui.ctFloat.Value)
+						a.ctrlChan <- controlCommand{
+							command:     SetColorTemperature,
+							targetValue: uint16(a.ui.briFloat.Value),
+						}
 					}
 					a.controlPanel(gtx, th)
 				} else {
@@ -188,7 +221,7 @@ func (a *App) login() {
 			if len(lights) == 0 {
 				log.Fatalf("no lights on Hue found?!")
 			}
-			err = a.selectLightByID(lights[0])
+			err = a.selectLightByID(lights[0], true)
 			if err != nil {
 				log.Fatalf("unable to select light: %s", err)
 			}

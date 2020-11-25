@@ -29,7 +29,10 @@ var brightnessCmd = &cobra.Command{
 		if !controller.IsLoggedIn() {
 			return errors.New("missing login data; provide as args/env (see -h) or run huego-fe login")
 		}
-		return controller.SetBrightness(viper.GetInt(flagHueLight), uint8(brightness))
+		if viper.GetBool(flagSingle) {
+			return controller.SetBrightness(viper.GetInt(flagHueLight), uint8(brightness))
+		}
+		return errors.New("CLI/web group control commands not yet ... sorry")
 	},
 }
 

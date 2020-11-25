@@ -64,6 +64,11 @@ func (ctrl *Controller) Lights() ([]huego.Light, error) {
 	return ctrl.bridge.GetLights()
 }
 
+// Groups just wraps huego.bridge.GetLights()
+func (ctrl *Controller) Groups() ([]huego.Group, error) {
+	return ctrl.bridge.GetGroups()
+}
+
 // LightsFiltered calls huego.bridge.GetLights() and drops any lights contained in lightFilter, before returning.
 func (ctrl *Controller) LightsFiltered(lightFilter []int) ([]huego.Light, error) {
 	var result []huego.Light
@@ -92,6 +97,20 @@ func (ctrl *Controller) LightByID(id int) (*huego.Light, error) {
 		}
 	}
 	return nil, errors.New("light not found - check hue-light setting in ~/.huego-fe.yml")
+}
+
+// GroupByID returns *huego.Group on success, raises error otherwise
+func (ctrl *Controller) GroupByID(id int) (*huego.Group, error) {
+	groups, err := ctrl.bridge.GetGroups()
+	if err != nil {
+		return nil, err
+	}
+	for _, group := range groups {
+		if group.ID == id {
+			return &group, nil
+		}
+	}
+	return nil, errors.New("group not found - check hue-group setting in ~/.huego-fe.yml")
 }
 
 // List is used by CLI to dump lights/groups to console

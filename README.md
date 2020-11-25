@@ -33,13 +33,16 @@ Available Commands:
   version     prints a bestseller novel on-demand
 
 Flags:
-      --config string     config file (default is $HOME/.huego-fe.yaml)
-  -h, --help              help for huego-fe
-  -i, --hue-ip string     Hue bridge IP [$HUE_IP] , see: huego-fe login -h
-  -l, --hue-light int     Hue light No.# [$HUE_LIGHT], see: huego-fe list (default 1)
-  -u, --hue-user string   Hue bridge user/token [$HUE_USER], see: huego-fe login -h
-  -f, --light-filter string   filter lights shown to comma-separated list of IDs
+      --config string         config file (default is $HOME/.huego-fe.yaml)
+  -h, --help                  help for huego-fe
+  -g, --hue-group int         Hue group No.# [$HUE_GROUP], see: huego-fe list (default 1)
+  -i, --hue-ip string         Hue bridge IP [$HUE_IP] , see: huego-fe login -h
+  -l, --hue-light int         Hue light No.# [$HUE_LIGHT], see: huego-fe list (default 1)
+  -u, --hue-user string       Hue bridge user/token [$HUE_USER], see: huego-fe login -h
+  -f, --light-filter string   exclude lights (provided as comma-separated list of IDs) from UI
+  -s, --single-light          Apply operation on single light, not (default) group
 
+  
 Use "huego-fe [command] --help" for more information about a command.
 
 ```
@@ -61,6 +64,8 @@ At first run after installation, `huego-fe` needs to be linked to your Hue.
 Hue address and login data will be stored in `~/.huego-fe.yml`.
 Should you ever want to re-link, delete the file.
 
+*Note: CLI (and web) currently still lack group control capabilities. Soon ...*
+
 ### Web
 
 - Run `huego-fe serve --open-browser` (or `huego-fe s -o` for short). 
@@ -69,6 +74,7 @@ Your browser should open, showing huego-fe web UI, asking you to push link butto
 you should be warped into control UI.
 
 ### CLI
+
 
 - Press Hue's link button to enable login
 - Now run `huego-fe login` within a few seconds
@@ -85,13 +91,16 @@ you should be warped into control UI.
 
 Keyboard shortcuts:
 
-| Key(s)                                         | Action                      |
-|------------------------------------------------|-----------------------------|
-| <kbd>⇧</kbd> / <kbd>⇩</kbd>                    | select light                |
-| <kbd>⇦</kbd> / <kbd>⇨</kbd>                    | brightness -/+ 20           |
-| <kbd>Ctrl</kbd> + <kbd>⇦</kbd> / <kbd>⇨</kbd>  | brightness -/+ 10           |
-| <kbd>Alt</kbd> + <kbd>⇦</kbd> / <kbd>⇨</kbd>   | brightness jump min/max     |
-| <kbd>Shift</kbd> + <kbd>⇦</kbd> / <kbd>⇨</kbd> | color temperature -/+ 20    |
+| Key(s)                                         | Action                                              |
+|------------------------------------------------|-----------------------------------------------------|
+| <kbd>Tab</kbd>                                 | toggle between single-light and group control mode  |
+| <kbd>⇧</kbd> / <kbd>⇩</kbd>                    | select light / group                                |
+| <kbd>⇦</kbd> / <kbd>⇨</kbd>                    | brightness -/+ 20                                   |
+|                                                | with <kbd>Ctrl</kbd>: brightness -/+ 10             |
+|                                                | with <kbd>Alt</kbd>: brightness jump min/max        |
+| <kbd>⇦</kbd> / <kbd>⇨</kbd> + <kbd>Shift</kbd> | color temperature -/+ 20                            |
+|                                                | with <kbd>Ctrl</kbd>: color temperature -/+ 10      |
+|                                                | with <kbd>Alt</kbd>: color temperature jump min/max |
 | <kbd>PgUp</kbd> / <kbd>Home</kbd>              | power on                    |
 | <kbd>PgDn</kbd> / <kbd>End</kbd>               | power off                   |
 | <kbd>⏎</kbd> / <kbd>Enter</kbd>                | toggle power state          | 

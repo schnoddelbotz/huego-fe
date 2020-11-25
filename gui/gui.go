@@ -47,8 +47,14 @@ func (a *App) controlPanel(gtx layout.Context, th *material.Theme) layout.Dimens
 					})
 				}),
 				layout.Flexed(1, func(gtx C) D {
+					if a.ui.controlOneLight {
+						return layout.UniformInset(unit.Dp(10)).Layout(gtx,
+							material.Label(th, unit.Dp(20), a.selectedLight.Name).Layout,
+						)
+					}
+					// fixme ugliness...
 					return layout.UniformInset(unit.Dp(10)).Layout(gtx,
-						material.Label(th, unit.Dp(20), a.selectedLight.Name).Layout,
+						material.Label(th, unit.Dp(20), a.selectedGroup.Name).Layout,
 					)
 				}),
 				layout.Rigid(func(gtx C) D {
@@ -88,27 +94,35 @@ func (a *App) controlPanel(gtx layout.Context, th *material.Theme) layout.Dimens
 				layout.Rigid(func(gtx C) D {
 					return in.Layout(gtx, func(gtx C) D {
 						for a.ui.buttonOff.Clicked() {
-							a.pwrChan <- powerOff
+							a.ctrlChan <- controlCommand{command: PowerOff}
 						}
 						btn := material.Button(th, a.ui.buttonOff, "Off")
-						btn.Background = btnColorMap[a.selectedLight.State.On]
+						if a.ui.controlOneLight {
+							btn.Background = btnColorMap[a.selectedLight.State.On]
+						} else {
+							btn.Background = btnColorMap[a.selectedGroup.State.On]
+						}
 						return btn.Layout(gtx)
 					})
 				}),
 				layout.Rigid(func(gtx C) D {
 					return in.Layout(gtx, func(gtx C) D {
 						for a.ui.buttonOn.Clicked() {
-							a.pwrChan <- powerOn
+							a.ctrlChan <- controlCommand{command: PowerOn}
 						}
 						btn := material.Button(th, a.ui.buttonOn, "On")
-						btn.Background = btnColorMap[!a.selectedLight.State.On]
+						if a.ui.controlOneLight {
+							btn.Background = btnColorMap[!a.selectedLight.State.On]
+						} else {
+							btn.Background = btnColorMap[!a.selectedGroup.State.On]
+						}
 						return btn.Layout(gtx)
 					})
 				}),
 				layout.Rigid(func(gtx C) D {
 					return in.Layout(gtx, func(gtx C) D {
 						for a.ui.buttonToggle.Clicked() {
-							a.pwrChan <- powerToggle
+							a.ctrlChan <- controlCommand{command: PowerToggle}
 						}
 						buttonText := "Toggle on"
 						if a.selectedLight.State.On {

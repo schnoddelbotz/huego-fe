@@ -21,20 +21,22 @@ type App struct {
 	ctrl *huecontroller.Controller
 
 	selectedLight *huego.Light
-	briChan       chan uint8
-	ctChan        chan uint16
-	pwrChan       chan uint8
+	selectedGroup *huego.Group
+	ctrlChan      chan controlCommand
 	loggedIn      bool
 	lightFilter   []int
 }
 
+type controlCommand struct {
+	command     command
+	targetValue uint16
+}
+
 func newApp(w *app.Window, c *huecontroller.Controller, lightFilter string) *App {
 	a := &App{
-		w:       w,
-		ctrl:    c,
-		briChan: make(chan uint8, 100),
-		ctChan:  make(chan uint16, 100),
-		pwrChan: make(chan uint8, 100),
+		w:        w,
+		ctrl:     c,
+		ctrlChan: make(chan controlCommand, 100),
 		ui: &UI{
 			buttonOn:     new(widget.Clickable),
 			buttonOff:    new(widget.Clickable),
