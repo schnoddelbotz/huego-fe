@@ -60,7 +60,7 @@ func (a *App) cycleGroup(direction direction) error {
 
 func (a *App) getSortedGroupIDs() ([]int, error) {
 	var ids []int
-	groups, err := a.ctrl.Groups()
+	groups, err := a.ctrl.GroupsFiltered(a.groupFilter)
 	if err != nil {
 		return ids, err
 	}

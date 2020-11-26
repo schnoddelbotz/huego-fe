@@ -24,6 +24,7 @@ const (
 	flagHueGroup    = "hue-group"
 	flagSingle      = "single-light"
 	flagLightFilter = "light-filter"
+	flagGroupFilter = "group-filter"
 )
 
 var rootCmd = &cobra.Command{
@@ -33,7 +34,7 @@ var rootCmd = &cobra.Command{
 		// start UI if huego-fe called w/o args
 		controller := huecontroller.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
 		gui.Main(controller, viper.GetInt(flagHueLight), viper.GetInt(flagHueGroup),
-			viper.GetBool(flagSingle), viper.GetString(flagLightFilter))
+			viper.GetBool(flagSingle), viper.GetString(flagLightFilter), viper.GetString(flagGroupFilter))
 	},
 }
 
@@ -54,6 +55,7 @@ func init() {
 	rootCmd.PersistentFlags().StringP(flagHueUser, "u", "", "Hue bridge user/token [$HUE_USER], see: huego-fe login -h")
 	rootCmd.PersistentFlags().StringP(flagHueIP, "i", "", "Hue bridge IP [$HUE_IP] , see: huego-fe login -h")
 	rootCmd.PersistentFlags().StringP(flagLightFilter, "f", "", "exclude lights (provided as comma-separated list of IDs) from UI")
+	rootCmd.PersistentFlags().StringP(flagGroupFilter, "G", "", "exclude groups (provided as comma-separated list of IDs) from UI")
 	rootCmd.PersistentFlags().IntP(flagHueLight, "l", 1, "Hue light No.# [$HUE_LIGHT], see: huego-fe list")
 	rootCmd.PersistentFlags().IntP(flagHueGroup, "g", 1, "Hue group No.# [$HUE_GROUP], see: huego-fe list")
 	rootCmd.PersistentFlags().BoolP(flagSingle, "s", false, "Apply operation on single light, not (default) group")
@@ -67,6 +69,7 @@ func init() {
 	_ = viper.BindPFlag(flagHueGroup, rootCmd.PersistentFlags().Lookup(flagHueGroup))
 	_ = viper.BindPFlag(flagSingle, rootCmd.PersistentFlags().Lookup(flagSingle)) // this is UI, not root cmd. meh.
 	_ = viper.BindPFlag(flagLightFilter, rootCmd.PersistentFlags().Lookup(flagLightFilter))
+	_ = viper.BindPFlag(flagGroupFilter, rootCmd.PersistentFlags().Lookup(flagGroupFilter))
 }
 
 // initConfig reads in config file and ENV variables if set.

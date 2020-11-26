@@ -23,13 +23,17 @@ var colortempCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		fmt.Printf("Setting brightness of light #%d to %d\n",
-			viper.GetInt(flagHueLight), uint16(temperature))
 		controller := huecontroller.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
 		if !controller.IsLoggedIn() {
 			return errors.New("missing login data; provide as args/env (see -h) or run huego-fe login")
 		}
-		return controller.SetColorTemperature(viper.GetInt(flagHueLight), uint16(temperature))
+		if viper.GetBool(flagSingle) {
+			fmt.Printf("Setting brightness of light #%d to %d\n",
+				viper.GetInt(flagHueLight), uint16(temperature))
+			return controller.SetColorTemperature(viper.GetInt(flagHueLight), uint16(temperature))
+		}
+		fmt.Printf("Setting brightness of group #%d to %d\n", viper.GetInt(flagHueGroup), uint16(temperature))
+		return controller.GroupSetColorTemperature(viper.GetInt(flagHueGroup), uint16(temperature))
 	},
 }
 

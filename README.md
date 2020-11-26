@@ -4,7 +4,7 @@
 
 # huego-fe
 
-A cross-platform CLI, GUI and Web - frontend for Philips Hue bridges, based on [huego](https://github.com/amimof/huego).
+A cross-platform CLI, GUI and web - frontend for software remote control of Philips Hue bridges, based on [huego](https://github.com/amimof/huego).
 
 `huego-fe` focuses on basic lights operations (on, off, brightness, ... more to come potentially).
 
@@ -64,7 +64,7 @@ At first run after installation, `huego-fe` needs to be linked to your Hue.
 Hue address and login data will be stored in `~/.huego-fe.yml`.
 Should you ever want to re-link, delete the file.
 
-*Note: CLI (and web) currently still lack group control capabilities. Soon ...*
+*Note: Web currently still lacks color temperature and group control capabilities. Soon ...*
 
 ### Web
 
@@ -74,7 +74,6 @@ Your browser should open, showing huego-fe web UI, asking you to push link butto
 you should be warped into control UI.
 
 ### CLI
-
 
 - Press Hue's link button to enable login
 - Now run `huego-fe login` within a few seconds
@@ -123,19 +122,53 @@ It might be handy to assign a Keyboard shortcut to start `huego-fe` GUI for regu
 Pressing Ctrl-F12 will now bring up `huego-fe` with default `hue-light` as set in `~/.huego-fe.yml`!
 
 You may want to additionally assign `huego-fe toggle` (to e.g. Ctrl-Shift-F12), permitting direct toggling
-of your default lamp. See CLI usage above.
+of your default lamp.
+
+### Example configuration file
+
+The `.huego-fe.yml` gets written to your home directory upon initial Hue bridge pairing success and
+read at each startup. Each setting maps to the command line flag of same name. Command line flags 
+override config file settings. Example contents: 
+
+```
+# The following group filter will exclude group IDs 2,3,4,5 from UI (e.g. if no intent to ever control):
+group-filter: "2,3,4,5"
+# As for groups -- light exclusion filter. List IDs not to show in UI (control via CLI is still possible).
+light-filter: "2,3,4,5"
+
+# The default group ID to open in UI and to control via CLI if no group was provided, dto. for light:
+hue-group: 1
+hue-light: 6
+
+# Command line flag -s / --single-light; defaults to false. Keep it like this, unless you want to
+# exclusively use GUI and have it show single light control mode on every startup.
+single-light: false
+
+# Open a web browser when running huego-fe serve?
+open-browser: false
+
+# Bridge settings
+hue-ip: http://192.168.78.128
+hue-user: ...individual.key.from.pairing...
+```
+
+Using above config, and assuming we have light and group IDs 1-6 to control, we can now e.g. `t[oggle]` like this:
+
+- `huego-fe t` will toggle default group (ID 1), as `--single-light` is false by default
+- `huego-fe t 6` will toggle non-default group (ID 6)
+- `huego-fe t -s` will toggle default light (ID 6)
+- `huego-fe t -s 1` will toggle non-default light (ID 1)
 
 # todo
 
 - getting/setting colors, see
   - https://github.com/lucasb-eyer/go-colorful/issues/35
   - https://stackoverflow.com/questions/22564187/rgb-to-philips-hue-hsb
-- enable cobra shell auto-completion on commands / lights
+- cli: enable cobra shell auto-completion on commands / lights
 - add a cmd/install_linux.go that permits simple installation of systemd socket-activated `huego-fe serve`?
-- use index.tpl.html for link process, too
+- web: use index.tpl.html for link process, too; group+color temp control missing
 - add `huego-fe schedule` to easily manage systemd timers / mac launchd / MS ScheduledTask?
 - split gui and cli/web binaries? build time for CLI/web only usage concerns + mousetrap breaks cli on win 
-- TODOs/FIXMEs in code...
 - github action: add release builds; open: goreleaser vs cgo / how-to 
 
 # kudos to ...

@@ -17,13 +17,16 @@ var onCmd = &cobra.Command{
 	SilenceErrors: true,
 	SilenceUsage:  true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// TODO: should accept numeric lamp ID from List() ... or look up by name! Order changes...
-		fmt.Printf("Powering on: Light %d ...\n", viper.GetInt(flagHueLight))
 		controller := huecontroller.New(viper.GetString(flagHueIP), viper.GetString(flagHueUser))
 		if !controller.IsLoggedIn() {
 			return errors.New("missing login data; provide as args/env (see -h) or run huego-fe login")
 		}
-		return controller.PowerOn(viper.GetInt(flagHueLight))
+		if viper.GetBool(flagSingle) {
+			fmt.Printf("Powering on: Light %d ...\n", viper.GetInt(flagHueLight))
+			return controller.PowerOn(viper.GetInt(flagHueLight))
+		}
+		fmt.Printf("Powering on: Group %d ...\n", viper.GetInt(flagHueGroup))
+		return controller.GroupPowerOn(viper.GetInt(flagHueGroup))
 	},
 }
 

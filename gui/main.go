@@ -25,8 +25,8 @@ const (
 )
 
 // Main is called by cmd/root.go if huego-fe is invoked without command line arguments
-func Main(ctrl *huecontroller.Controller, selectLight int, selectGroup int, ctrlSingle bool, lightFilter string) {
-	a := newApp(nil, ctrl, lightFilter)
+func Main(ctrl *huecontroller.Controller, selectLight int, selectGroup int, ctrlSingle bool, lightFilter, groupFilter string) {
+	a := newApp(nil, ctrl, lightFilter, groupFilter)
 	if ctrl.IsLoggedIn() {
 		err := a.selectInitialGuiLightAndGroup(selectLight, selectGroup, ctrlSingle)
 		if err != nil {
@@ -174,12 +174,12 @@ func (a *App) loop() error {
 func (a *App) selectInitialGuiLightAndGroup(selectLight int, selectGroup int, ctrlSingle bool) error {
 	var err error
 	if ctrlSingle {
+		a.ui.controlOneLight = true
 		err = a.selectLightByID(selectLight, true)
 		if selectGroup > 0 {
 			a.selectGroupByID(selectGroup, false)
 		}
 	} else {
-		log.Printf("LOGIN ... selecting: %d", selectGroup)
 		err = a.selectGroupByID(selectGroup, true)
 		if selectLight > 0 {
 			a.selectLightByID(selectLight, false)

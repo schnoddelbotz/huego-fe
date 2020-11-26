@@ -25,10 +25,17 @@ type App struct {
 	ctrlChan      chan controlCommand
 	loggedIn      bool
 	lightFilter   []int
+	groupFilter   []int
 }
 
-type command int8
-type direction int8
+type (
+	command        int8
+	direction      int8
+	controlCommand struct {
+		command     command
+		targetValue uint16
+	}
+)
 
 // PowerOff etc. are valid commands sent via App.ctrlChan, as controlCommand.command
 const (
@@ -41,12 +48,7 @@ const (
 	directionUp
 )
 
-type controlCommand struct {
-	command     command
-	targetValue uint16
-}
-
-func newApp(w *app.Window, c *huecontroller.Controller, lightFilter string) *App {
+func newApp(w *app.Window, c *huecontroller.Controller, lightFilter, groupFilter string) *App {
 	a := &App{
 		w:        w,
 		ctrl:     c,
@@ -82,5 +84,28 @@ func newApp(w *app.Window, c *huecontroller.Controller, lightFilter string) *App
 			}
 		}
 	}
+	if groupFilter != "" {
+		ids := strings.Split(groupFilter, ",")
+		for _, sid := range ids {
+			id, err := strconv.Atoi(sid)
+			if err == nil {
+				a.groupFilter = append(a.groupFilter, id)
+			}
+		}
+	}
+	a.lightFilter = filterStringToSlice(lightFilter)
+	a.groupFilter = filterStringToSlice(groupFilter)
 	return a
+}
+
+func filterStringToSlice(filter string) []int {
+	var slice []int
+	ids := strings.Split(filter, ",")
+	for _, sid := range ids {
+		id, err := strconv.Atoi(sid)
+		if err == nil {
+			slice = append(slice, id)
+		}
+	}
+	return slice
 }
