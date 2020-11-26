@@ -2,7 +2,6 @@
 BINARY := huego-fe
 VERSION ?= $(shell git describe --tags --always --dirty --match=v* 2> /dev/null || echo v0)
 LDFLAGS := -w -s -X github.com/schnoddelbotz/huego-fe/cmd.Version=$(VERSION)
-WIN_LDFLAGS := -H=windowsgui
 ASSETS := $(wildcard assets/*)
 SRC_DEPENDS := main.go */*.go go.* web/assets.go
 COVERAGE_PROFILE := profile.cov
@@ -11,7 +10,7 @@ OS := $(shell uname -s)
 # Linux: X11 or Wayland ?
 LINUX_DISPLAY := X11
 # Windows: CLI or GUI? Set empty for CLI.
-WIN_UI := -H=windowsgui
+WIN_LDFLAGS := -H=windowsgui
 
 all: test $(BINARY)
 
@@ -36,7 +35,7 @@ $(BINARY)_Darwin:
 $(BINARY).exe:
 	# building for Windows; Using "-H=windowsgui" will disable console window, but also break CLI usage.
 	# Dunno how to fix. Use `make huego-fe.exe WINGUI=''` if CLI version is desired.
-	GOOS=windows GOARCH=amd64 go build -ldflags='$(LDFLAGS) $(WINDOWS_UI)'
+	GOOS=windows GOARCH=amd64 go build -ldflags='$(LDFLAGS) $(WIN_LDFLAGS)'
 
 web/assets.go: $(ASSETS)
 	# building web/assets.go to embed web assets into huego-fe binary

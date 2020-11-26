@@ -56,7 +56,7 @@ If you have [Go](https://golang.org/doc/install) installed and want to build fro
 go get github.com/schnoddelbotz/huego-fe
 ```
 
-Otherwise, [download a binary release](./../../releases) and put the binary somewhere on your `PATH`.
+Otherwise, [download a binary release](./../../releases), extract it and put the binary somewhere on your `PATH`.
 
 ## Setup / Usage / Examples
 
@@ -127,8 +127,6 @@ of your default lamp. See CLI usage above.
 
 # todo
 
-- hue light group control
-- enable toggling between single-light and group control mode; pref: default mode
 - getting/setting colors, see
   - https://github.com/lucasb-eyer/go-colorful/issues/35
   - https://stackoverflow.com/questions/22564187/rgb-to-philips-hue-hsb
