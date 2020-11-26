@@ -37,7 +37,7 @@ type (
 	C = layout.Context
 )
 
-func (a *App) controlPanel(gtx layout.Context, th *material.Theme) layout.Dimensions {
+func (a *App) layoutControlPanel(gtx layout.Context, th *material.Theme) layout.Dimensions {
 	widgets := []layout.Widget{
 		func(gtx C) D {
 			return layout.Flex{Alignment: layout.Start}.Layout(gtx,
@@ -141,7 +141,7 @@ func (a *App) controlPanel(gtx layout.Context, th *material.Theme) layout.Dimens
 	})
 }
 
-func (a *App) pairingRequiredScreen(gtx layout.Context, th *material.Theme) layout.Dimensions {
+func (a *App) layoutPairingScreen(gtx layout.Context, th *material.Theme) layout.Dimensions {
 	widgets := []layout.Widget{
 		material.Label(th, unit.Dp(20), "Please press Hue's link button").Layout,
 		func(gtx C) D {

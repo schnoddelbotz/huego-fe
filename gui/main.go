@@ -22,10 +22,6 @@ const (
 	briFloatMaxVal       float32 = 255.0
 	floatDefaultStepSize float32 = 20.0
 	floatCtrlStepSize    float32 = 10.0
-	cycleUp              int8    = iota
-	cycleDown
-	actionDecrease
-	actionIncrease
 )
 
 // Main is called by cmd/root.go if huego-fe is invoked without command line arguments
@@ -81,32 +77,32 @@ func (a *App) loop() error {
 				switch e.Name {
 				case key.NameRightArrow:
 					if e.Modifiers.Contain(key.ModShift) {
-						a.ui.ctFloat.Value = getSliderValueFor(actionIncrease, a.ui.ctFloat.Value, e.Modifiers, 1.0, ctFloatMaxVal)
+						a.ui.ctFloat.Value = getSliderValueFor(directionUp, a.ui.ctFloat.Value, e.Modifiers, 1.0, ctFloatMaxVal)
 						a.ctrlChan <- controlCommand{command: SetColorTemperature, targetValue: uint16(a.ui.ctFloat.Value)}
 					} else {
-						a.ui.briFloat.Value = getSliderValueFor(actionIncrease, a.ui.briFloat.Value, e.Modifiers, 1.0, briFloatMaxVal)
+						a.ui.briFloat.Value = getSliderValueFor(directionUp, a.ui.briFloat.Value, e.Modifiers, 1.0, briFloatMaxVal)
 						a.ctrlChan <- controlCommand{command: SetBrightness, targetValue: uint16(a.ui.briFloat.Value)}
 					}
 				case key.NameLeftArrow:
 					if e.Modifiers.Contain(key.ModShift) {
-						a.ui.ctFloat.Value = getSliderValueFor(actionDecrease, a.ui.ctFloat.Value, e.Modifiers, 1.0, ctFloatMaxVal)
+						a.ui.ctFloat.Value = getSliderValueFor(directionDown, a.ui.ctFloat.Value, e.Modifiers, 1.0, ctFloatMaxVal)
 						a.ctrlChan <- controlCommand{command: SetColorTemperature, targetValue: uint16(a.ui.ctFloat.Value)}
 					} else {
-						a.ui.briFloat.Value = getSliderValueFor(actionDecrease, a.ui.briFloat.Value, e.Modifiers, 1.0, briFloatMaxVal)
+						a.ui.briFloat.Value = getSliderValueFor(directionDown, a.ui.briFloat.Value, e.Modifiers, 1.0, briFloatMaxVal)
 						a.ctrlChan <- controlCommand{command: SetBrightness, targetValue: uint16(a.ui.briFloat.Value)}
 					}
 
 				case key.NameUpArrow:
 					if a.ui.controlOneLight {
-						a.cycleLight(cycleUp)
+						a.cycleLight(directionUp)
 					} else {
-						a.cycleGroup(cycleUp)
+						a.cycleGroup(directionUp)
 					}
 				case key.NameDownArrow:
 					if a.ui.controlOneLight {
-						a.cycleLight(cycleDown)
+						a.cycleLight(directionDown)
 					} else {
-						a.cycleGroup(cycleDown)
+						a.cycleGroup(directionDown)
 					}
 
 				case key.NamePageUp:
@@ -165,9 +161,9 @@ func (a *App) loop() error {
 							targetValue: uint16(a.ui.briFloat.Value),
 						}
 					}
-					a.controlPanel(gtx, th)
+					a.layoutControlPanel(gtx, th)
 				} else {
-					a.pairingRequiredScreen(gtx, th)
+					a.layoutPairingScreen(gtx, th)
 				}
 				e.Frame(gtx.Ops)
 			}
@@ -229,7 +225,7 @@ func (a *App) login(selectLight int, selectGroup int, ctrlSingle bool) {
 	}
 }
 
-func getSliderValueFor(action int8, current float32, modifiers key.Modifiers, min, max float32) float32 {
+func getSliderValueFor(action direction, current float32, modifiers key.Modifiers, min, max float32) float32 {
 	change := floatDefaultStepSize // 20?
 	if modifiers.Contain(key.ModCtrl) {
 		change = floatCtrlStepSize // 10?
@@ -237,7 +233,7 @@ func getSliderValueFor(action int8, current float32, modifiers key.Modifiers, mi
 		change = max // to jump min/max
 	}
 	var newValue float32
-	if action == actionIncrease {
+	if action == directionUp {
 		newValue = current + change
 		if newValue > max {
 			newValue = max

@@ -28,6 +28,7 @@ type App struct {
 }
 
 type command int8
+type direction int8
 
 // PowerOff etc. are valid commands sent via App.ctrlChan, as controlCommand.command
 const (
@@ -36,6 +37,8 @@ const (
 	PowerToggle
 	SetBrightness
 	SetColorTemperature
+	directionDown direction = iota
+	directionUp
 )
 
 type controlCommand struct {
