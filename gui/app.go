@@ -27,6 +27,17 @@ type App struct {
 	lightFilter   []int
 }
 
+type command int8
+
+// PowerOff etc. are valid commands sent via App.ctrlChan, as controlCommand.command
+const (
+	PowerOff command = iota
+	PowerOn
+	PowerToggle
+	SetBrightness
+	SetColorTemperature
+)
+
 type controlCommand struct {
 	command     command
 	targetValue uint16

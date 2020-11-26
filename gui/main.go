@@ -1,7 +1,6 @@
 package gui
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -18,61 +17,35 @@ import (
 	"github.com/schnoddelbotz/huego-fe/huecontroller"
 )
 
-type command int8
-
-// PowerOff etc. are valid commands sent via controlChannel
 const (
-	actionDecrease = 0
-	actionIncrease = 1
-	//floatMinVal          float32 = 1.0
-	//floatMaxVal          float32 = 255.0
+	ctFloatMaxVal        float32 = 500.0
+	briFloatMaxVal       float32 = 255.0
 	floatDefaultStepSize float32 = 20.0
 	floatCtrlStepSize    float32 = 10.0
-	floatShiftStepSize   float32 = 1.0
-
-	PowerOff command = iota
-	PowerOn
-	PowerToggle
-	SetBrightness
-	SetColorTemperature
-
-	commandCycle      = 99999 // wtf
-	cycleUp      int8 = iota
+	cycleUp              int8    = iota
 	cycleDown
+	actionDecrease
+	actionIncrease
 )
 
 // Main is called by cmd/root.go if huego-fe is invoked without command line arguments
 func Main(ctrl *huecontroller.Controller, selectLight int, selectGroup int, ctrlSingle bool, lightFilter string) {
 	a := newApp(nil, ctrl, lightFilter)
 	if ctrl.IsLoggedIn() {
-		a.loggedIn = true
-		groupIDs, err := a.getSortedGroupIDs()
+		err := a.selectInitialGuiLightAndGroup(selectLight, selectGroup, ctrlSingle)
 		if err != nil {
-			log.Fatalf("Cannot: %s", err)
-		}
-		if ctrlSingle {
-			err = a.selectLightByID(selectLight, true)
-			if selectGroup > 0 {
-				a.selectGroupByID(groupIDs[0], false)
-			}
-		} else {
-			err = a.selectGroupByID(selectGroup, true)
-			if selectLight > 0 {
-				a.selectLightByID(selectLight, false)
-			}
-		}
-		if err != nil {
-			// todo: feedback via gui
 			log.Fatalf("unable to select light %d", selectLight)
 		}
+		// todo: feedback via gui
+		a.loggedIn = true
 	} else {
-		go a.login()
+		go a.login(selectLight, selectGroup, ctrlSingle)
 	}
 
 	go a.handleControlCommands()
 
 	go func() {
-		w := app.NewWindow(app.Size(unit.Dp(400), unit.Dp(250)), app.Title("huego-fe - Hue Control UI"))
+		w := app.NewWindow(app.Size(unit.Dp(400), unit.Dp(230)), app.Title("huego-fe - Hue Control UI"))
 		a.w = w
 		if err := a.loop(); err != nil {
 			log.Fatal(err)
@@ -108,18 +81,18 @@ func (a *App) loop() error {
 				switch e.Name {
 				case key.NameRightArrow:
 					if e.Modifiers.Contain(key.ModShift) {
-						a.ui.ctFloat.Value = getSliderValueFor(actionIncrease, a.ui.ctFloat.Value, e.Modifiers, 1.0, 500.0)
+						a.ui.ctFloat.Value = getSliderValueFor(actionIncrease, a.ui.ctFloat.Value, e.Modifiers, 1.0, ctFloatMaxVal)
 						a.ctrlChan <- controlCommand{command: SetColorTemperature, targetValue: uint16(a.ui.ctFloat.Value)}
 					} else {
-						a.ui.briFloat.Value = getSliderValueFor(actionIncrease, a.ui.briFloat.Value, e.Modifiers, 1.0, 255.0)
+						a.ui.briFloat.Value = getSliderValueFor(actionIncrease, a.ui.briFloat.Value, e.Modifiers, 1.0, briFloatMaxVal)
 						a.ctrlChan <- controlCommand{command: SetBrightness, targetValue: uint16(a.ui.briFloat.Value)}
 					}
 				case key.NameLeftArrow:
 					if e.Modifiers.Contain(key.ModShift) {
-						a.ui.ctFloat.Value = getSliderValueFor(actionDecrease, a.ui.ctFloat.Value, e.Modifiers, 1.0, 500.0)
+						a.ui.ctFloat.Value = getSliderValueFor(actionDecrease, a.ui.ctFloat.Value, e.Modifiers, 1.0, ctFloatMaxVal)
 						a.ctrlChan <- controlCommand{command: SetColorTemperature, targetValue: uint16(a.ui.ctFloat.Value)}
 					} else {
-						a.ui.briFloat.Value = getSliderValueFor(actionDecrease, a.ui.briFloat.Value, e.Modifiers, 1.0, 255.0)
+						a.ui.briFloat.Value = getSliderValueFor(actionDecrease, a.ui.briFloat.Value, e.Modifiers, 1.0, briFloatMaxVal)
 						a.ctrlChan <- controlCommand{command: SetBrightness, targetValue: uint16(a.ui.briFloat.Value)}
 					}
 
@@ -202,7 +175,24 @@ func (a *App) loop() error {
 	}
 }
 
-func (a *App) login() {
+func (a *App) selectInitialGuiLightAndGroup(selectLight int, selectGroup int, ctrlSingle bool) error {
+	var err error
+	if ctrlSingle {
+		err = a.selectLightByID(selectLight, true)
+		if selectGroup > 0 {
+			a.selectGroupByID(selectGroup, false)
+		}
+	} else {
+		log.Printf("LOGIN ... selecting: %d", selectGroup)
+		err = a.selectGroupByID(selectGroup, true)
+		if selectLight > 0 {
+			a.selectLightByID(selectLight, false)
+		}
+	}
+	return err
+}
+
+func (a *App) login(selectLight int, selectGroup int, ctrlSingle bool) {
 	// TODO: This has zero GUI feedback beyond "please press..." (and dies only via console msg...)
 	log.Printf("trying to log in ...")
 	for a.loggedIn == false {
@@ -225,7 +215,12 @@ func (a *App) login() {
 			if err != nil {
 				log.Fatalf("unable to select light: %s", err)
 			}
-			fmt.Printf("login succes!")
+			log.Printf("login succes! initializing GUI with light / group: %d / %d", selectLight, selectGroup)
+			err = a.selectInitialGuiLightAndGroup(selectLight, selectGroup, ctrlSingle)
+			if err != nil {
+				log.Fatalf("unable to select light %d", selectLight)
+			}
+			log.Print("all good - enabling control UI ...!")
 			a.loggedIn = true
 			return
 		}
@@ -234,7 +229,7 @@ func (a *App) login() {
 	}
 }
 
-func getSliderValueFor(action int, current float32, modifiers key.Modifiers, min, max float32) float32 {
+func getSliderValueFor(action int8, current float32, modifiers key.Modifiers, min, max float32) float32 {
 	change := floatDefaultStepSize // 20?
 	if modifiers.Contain(key.ModCtrl) {
 		change = floatCtrlStepSize // 10?
